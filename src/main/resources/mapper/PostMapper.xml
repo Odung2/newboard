@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.weboard.mapper.PostMapper">
+    <select id="getPostById" parameterType="int" resultType="PostDTO">
+        SELECT * FROM post WHERE post_id=#{postId}
+    </select>
+
+    <select id="getPostAll" resultType="PostDTO">
+        SELECT * FROM post
+    </select>
+
+    <select id="getDetailPostRes" parameterType="int" resultType="DetailPostRes">
+        SELECT post.post_id, post.title, user.nickname, post.views, post.contents, post.file_path
+        FROM post LEFT JOIN user ON post.created_by = user.id WHERE post_id = #{postId}
+    </select>
+
+    <select id="getPostAllByOffset" parameterType="int" resultType="PostDTO">
+        SELECT * FROM post LIMIT #{pagesize}
+                 <if test="offset!=null">
+                     OFFSET #{offset}
+                 </if>
+    </select>
+
+    <select id="getPublicPostIntroAllByOffset" parameterType="int" resultType="PublicPostRes">
+        SELECT post.post_id, post.title, post.views, post.created_at, user.nickname
+        FROM post LEFT JOIN user ON post.created_by = user.id
+        LIMIT #{pagesize}
+        <if test="offset!=null">
+            OFFSET #{offset}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="PostDTO">
+        INSERT INTO post (title, created_by, updated_by, updated_at, views, contents, file_path)
+        VALUES (#{title}, #{createdBy}, null, null, #{views}, #{contents}, #{fileData});
+    </insert>
+
+    <update id="update" parameterType="PostDTO">
+        UPDATE post
+        <set>
+            <if test="title != null">
+                title=#{title},
+            </if>
+            <if test="updatedBy != null">
+                updated_by=#{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at=#{updatedAt},
+            </if>
+            <if test="views != null">
+                views=#{views},
+            </if>
+            <if test="contents != null">
+                contents=#{contents},
+            </if>
+            <if test="fileData != null">
+                file_data=#{fileData},
+            </if>
+        </set>
+            WHERE post_id = #{postId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM post
+            WHERE post_id=#{postId}
+    </delete>
+</mapper>

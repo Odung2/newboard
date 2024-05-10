@@ -1,0 +1,38 @@
+# port
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/newboard
+    username: mingle
+    password: mingle
+    hikari:
+      pool-name: hikari-cp
+      maximum-pool-size: 5
+      connection-timeout: 7000
+      connection-init-sql: SELECT 1
+      validation-timeout: 7000
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  data:
+    redis:
+      host: localhost
+      port: 6379
+# mybatis config
+mybatis:
+  configuration:
+    multiple-result-sets-enabled: false
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true
+    jdbc-type-for-null: varchar
+    default-fetch-size: 500
+  type-aliases-package: com.wemade.newboard
+  mapper-locations: classpath:mapper/**/*.xml
+
+jwt:
+  secret: randomsecretkey123hellohibyethisissecretokitistooshorttomakejsonwebtokenhowlongdoeshs512works
+  access-expiration: 3600000
+  refresh-expiration: 7200000
