@@ -21,9 +21,9 @@ public class UpdatePostParam {
     @Schema(description = "내용")
     private String contents;
 
-    @Nullable
-    @Size(max=500, message = "파일 데이터 경로는 1자 이상 500자 이하만 가능합니다.")
-    @Schema(description = "파일 데이터")
-    private String fileData;
+//    @Nullable
+//    @Size(max=500, message = "파일 데이터 경로는 1자 이상 500자 이하만 가능합니다.")
+//    @Schema(description = "파일 데이터")
+//    private String fileData;
 }
 

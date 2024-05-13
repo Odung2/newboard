@@ -8,14 +8,13 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper extends BaseMapper{
-    List<CommentDTO> getCommentByPostId(int postId);
-    CommentDTO getCommentByCommentId(int commentId);
+    List<CommentDTO> getCommentByPostId(int postNo);
+    CommentDTO getCommentByCommentId(int commentNo);
 
     int insert(CommentDTO comment);
-
     int update(CommentDTO comment);
     @Override
-    int delete(int commentId);
-
+    int delete(int commentNo);
     List<CommentRes> getComments(int postId);
+    List<CommentRes> getUserComments(int userNo);
 }

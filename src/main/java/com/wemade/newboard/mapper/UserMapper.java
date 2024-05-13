@@ -11,19 +11,16 @@ public interface UserMapper extends BaseMapper{
     UserDTO getUserByIdOrUserId(UserDTO user);
 
 
-    UserDTO getUser(String emailOrUserId, String type);
-    UserDTO getUser(int userNo);
+    UserDTO getUserByUserId(String emailOrUserId);
+    UserDTO getUserByUserNo(int userNo);
+
+    String getEmail(String userId);
+
+    String doesEmailExist(String email);
 
     UserDTO getUserByEmail(String email);
     int getIdByUserId(String userId);
     String getPasswordById(int id);
-    int addLoginFailCount(int id);
-    int resetLoginFailCount(int id);
-
-    int resetLoginLocked(int id);
-    int lockUnlockUser(@Param("id") int id, @Param("isLocked") int isLocked);
-    int updateLoginLocked(UserDTO user);
-
     int insert(SignupParam signupParam);
 
     int update(UserDTO user);

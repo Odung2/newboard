@@ -37,14 +37,8 @@ public class UserService {
      * @throws NotFoundException // 유저 정보가 존재하지 않음.
      */
 
-    public UserDTO getUser(String emailOrUserId, String type) {
-        //mapper 수준에서도 getUser 시 type을 알아야 함...
-        // 더 복잡한 거 같기도 함....
-        // Mapper는 getBy 식으로 짜야 할듯
-        // 여기서 type 별로 분기해서 mapper 이용
-        //FIXME
-
-        UserDTO user = userMapper.getUser(emailOrUserId, type);
+    public UserDTO getUser(String userId) {
+        UserDTO user = userMapper.getUserByUserId(userId);
         if (user == null) {
             throw new NotFoundException("사용자를 찾을 수 없습니다.");
         }
@@ -52,7 +46,15 @@ public class UserService {
     }
 
     public UserDTO getUser(int userNo) {
-        UserDTO user = userMapper.getUser(userNo);
+        UserDTO user = userMapper.getUserByUserNo(userNo);
+        if (user == null) {
+            throw new NotFoundException("사용자를 찾을 수 없습니다.");
+        }
+        return user;
+    }
+
+    public UserDTO getUserByEmail(String email) {
+        UserDTO user = userMapper.getUserByEmail(email);
         if (user == null) {
             throw new NotFoundException("사용자를 찾을 수 없습니다.");
         }
@@ -60,9 +62,11 @@ public class UserService {
     }
 
     public String findPassword(FindPasswordParam findPasswordParam) {
-        if( ! (findPasswordParam.getEmail().equals((getUser(findPasswordParam.getUserId(), findByUserId)).getEmail()))){
+        if( !(findPasswordParam.getEmail().equals(userMapper.getEmail(findPasswordParam.getUserId())))){
             throw new NotFoundException("해당되는 이메일이 아닙니다.");
         }
+
+        //FIXME: 새로운 비밀번호(랜덤) 암호화 후 업데이트, 그리고 이메일로 발송하는 로직
 
         return ";";
     }
@@ -85,23 +89,6 @@ public class UserService {
     }
 
 
-    public void checkDuplicateUser(String userId){
-        try {
-            getUser(userId, findByUserId);
-        } catch (NotFoundException e){
-            return;
-        }
-        throw new DuplicateKeyException("중복된 아이디입니다. 다른 아이디를 입력해주세요.");
-    }
-
-    public void checkDuplicateEmail(String email){
-        try{
-            getUser(email, findByEmail);
-        }catch (NotFoundException e){
-            return;
-        }
-        throw new DuplicateKeyException("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
-    }
     /**
      * 주어진 ID의 사용자 정보를 업데이트합니다.
      *
@@ -132,6 +119,23 @@ public class UserService {
         // NotFoundException 체크
         getUser(userNo);
         return userMapper.delete(userNo);
+    }
+    public void checkDuplicateUser(String userId){
+        try {
+            getUser(userId);
+        } catch (NotFoundException e){
+            return;
+        }
+        throw new DuplicateKeyException("중복된 아이디입니다. 다른 아이디를 입력해주세요.");
+    }
+
+    public void checkDuplicateEmail(String email){
+        try{
+            getUserByEmail(email);
+        }catch (NotFoundException e){
+            return;
+        }
+        throw new DuplicateKeyException("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
     }
 
     /**

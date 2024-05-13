@@ -12,13 +12,18 @@
     </select>
 
     <select id="getDetailPostRes" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.nickname, post.views, post.contents, post.file_path
+        SELECT post.post_no, post.title, user.name, post.contents
         FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE post_no = #{postNo}
     </select>
 
     <select id="getUserPosts" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_id, post.title, user.nickname, post.views, post.contents, post.file_path
-        FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{postNo}
+        SELECT post.post_no, post.title, user.name, post.contents
+        FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 0
+    </select>
+
+    <select id="getUserTempPosts" parameterType="int" resultType="DetailPostRes">
+        SELECT post.post_no, post.title, user.name, post.contents
+        FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 1
     </select>
 
     <select id="getPostAllByOffset" parameterType="int" resultType="PostDTO">
@@ -29,7 +34,7 @@
     </select>
 
     <select id="getPublicPostIntroAllByOffset" parameterType="int" resultType="PublicPostRes">
-        SELECT post.post_id, post.title, post.views, post.created_at, user.nickname
+        SELECT post.post_no, post.title,post.created_at, user.name
         FROM post LEFT JOIN user ON post.user_no = user.user_no
         LIMIT #{pagesize}
         <if test="offset!=null">
@@ -38,8 +43,8 @@
     </select>
 
     <insert id="insert" parameterType="PostDTO">
-        INSERT INTO post (title, user_no, updated_by, updated_at, views, contents, file_path)
-        VALUES (#{title}, #{createdBy}, null, null, #{views}, #{contents}, #{fileData});
+        INSERT INTO post (title, user_no, contents)
+        VALUES (#{title}, #{userNo}, #{contents});
     </insert>
 
     <update id="update" parameterType="PostDTO">
@@ -51,24 +56,15 @@
             <if test="updatedBy != null">
                 updated_by=#{updatedBy},
             </if>
-            <if test="updatedAt != null">
-                updated_at=#{updatedAt},
-            </if>
-            <if test="views != null">
-                views=#{views},
-            </if>
             <if test="contents != null">
                 contents=#{contents},
             </if>
-            <if test="fileData != null">
-                file_data=#{fileData},
-            </if>
         </set>
-            WHERE post_id = #{postId}
+            WHERE post_no = #{postNo}
     </update>
 
     <delete id="delete" parameterType="int">
         DELETE FROM post
-            WHERE post_id=#{postId}
+            WHERE post_no=#{postNo}
     </delete>
 </mapper>

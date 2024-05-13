@@ -5,9 +5,12 @@ import com.wemade.newboard.param.FindPasswordParam;
 import com.wemade.newboard.param.LoginParam;
 import com.wemade.newboard.param.SignupParam;
 import com.wemade.newboard.param.UpdateUserParam;
+import com.wemade.newboard.response.CommentRes;
+import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.MyInfoRes;
-import com.wemade.newboard.response.PublicUserInfoRes;
 import com.wemade.newboard.service.AuthService;
+import com.wemade.newboard.service.CommentService;
+import com.wemade.newboard.service.PostService;
 import com.wemade.newboard.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -16,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/newboard")
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +28,8 @@ public class UserController extends BaseController{
     private final UserService userService;
 
     private final AuthService authService;
+    private final PostService postService;
+    private final CommentService commentService;
 
     /**
      * 로그인
@@ -60,8 +67,8 @@ public class UserController extends BaseController{
      * @return user 등록된 유저 정보
      */
     @Operation(summary = "회원가입(새로운 사용자 등록)", description = "새로운 사용자를 등록합니다.")
-    @PostMapping("/public/signup")
-    public ResponseEntity<ApiResponse<String>> insertUser(
+    @PostMapping("/public/sign-up")
+    public ResponseEntity<ApiResponse<String>> SignUp(
             @RequestBody @Valid SignupParam signupParam) throws Exception {
         return ok(userService.insertUser(signupParam));
     }
@@ -73,89 +80,89 @@ public class UserController extends BaseController{
      * @return user 등록된 유저 정보
      */
     @Operation(summary = "비밀번호 찾기", description = "이메일로 새 비밀번호 발송")
-    @PostMapping("/public/signup")
+    @PostMapping("/public/find-password")
     public ResponseEntity<ApiResponse<String>> findPassword(
             @RequestBody @Valid FindPasswordParam findPasswordParam) throws Exception {
-//        return ok(userService.insertUser(signupParam));
+        return ok(userService.findPassword(findPasswordParam));
     }
 
     /**
      * 개인정보 조회, 액세스 토큰을 통해 인증된 사용자의 개인정보 조회 요청 처리
      *
-     * @param id 액세스 토큰
+     * @param userNo 액세스 토큰
      * @return user
      */
     @Operation(summary = "개인정보 조회", description = "사용자의 개인정보를 액세스 토큰을 통해 조회합니다.")
     @GetMapping("/my-page")
-    public ResponseEntity<ApiResponse<MyInfoRes>> getMyInfo(
-            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int id) {
-        return ok(userService.getPrivateUser(id));
+    public ResponseEntity<ApiResponse<MyInfoRes>> getMyPage(
+            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int userNo) {
+        return ok(userService.getPrivateUser(userNo));
     }
 
     /**
      * 개인정보 수정, 액세스 토큰을 통해 인증된 사용자의 개인정보 수정 요청 처리
      *
-     * @param id
+     * @param userNo
      * @param updateUserParam [nickname, password], 둘 다 nullable
      * @return
      * @throws Exception Password 양식 Exception, 암호화 알고리즘 Exception
      */
     @Operation(summary = "개인정보 수정", description = "개인정보(nickname 또는 password)를 수정할 수 있습니다.")
     @PutMapping("/my-page")
-    public ResponseEntity<ApiResponse<String>> updateUser(
-            @RequestAttribute("reqId") int id,
+    public ResponseEntity<ApiResponse<String>> updateMyPage(
+            @RequestAttribute("reqId") int userNo,
             @RequestBody @Valid UpdateUserParam updateUserParam) throws Exception {
-        return ok(userService.updateUser(updateUserParam, id));
+        return ok(userService.updateUser(updateUserParam, userNo));
     }
 
     /**
      * 회원 탈퇴 (DB에 저장된 개인정보를 삭제합니다.)
-     * @param id 본인의 id
+     * @param userNo 본인의 userNo
      * @return
      */
     @Operation(summary = "회원탈퇴(개인정보 삭제)", description = "권한이 있는 유저의 개인정보를 삭제할 수 있습니다.")
     @DeleteMapping("/my-page")
     public ResponseEntity<ApiResponse<Integer>> deleteUser(
-            @RequestAttribute("reqId") int id){
-        return ok(userService.deleteUser(id));
+            @RequestAttribute("reqId") int userNo){
+        return ok(userService.deleteUser(userNo));
     }
 
     /**
      * 내가 작성한 게시글 조회
      *
-     * @param id 액세스 토큰
+     * @param userNo 액세스 토큰
      * @return user
      */
     @Operation(summary = "내가 작성한 게시글 조회", description = "액세스 토큰을 통해 유저가 작성한 게시글을 조회합니다.")
     @GetMapping("/my-page/posts")
-    public ResponseEntity<ApiResponse<MyInfoRes>> getMyInfoPosts(
-            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int id) {
-//        return ok(userService.getPrivateUser(id));
+    public ResponseEntity<ApiResponse<List<DetailPostRes>>> getMyPosts(
+            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int userNo) {
+        return ok(postService.getUserPosts(userNo));
     }
 
     /**
      * 내가 작성한 댓글 조회
      *
-     * @param id 액세스 토큰
+     * @param userNo 액세스 토큰
      * @return user
      */
     @Operation(summary = "내가 작성한 댓글 조회", description = "액세스 토큰을 통해 유저가 작성한 댓글을 조회합니다.")
     @GetMapping("/my-page/comments")
-    public ResponseEntity<ApiResponse<MyInfoRes>> getMyInfoPosts(
-            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int id) {
-//        return ok(userService.getPrivateUser(id));
+    public ResponseEntity<ApiResponse<List<CommentRes>>> getMyComments(
+            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int userNo) {
+        return ok(commentService.getUserComments(userNo));
     }
 
     /**
      * (개인) 임시 저장글 조회
      *
-     * @param id 액세스 토큰
+     * @param userNo 액세스 토큰
      * @return user
      */
     @Operation(summary = "임시 저장글 조회", description = "액세스 토큰을 통해 유저가 임시 저장한 게시글을 조회합니다.")
     @GetMapping("/my-page/temp-posts")
-    public ResponseEntity<ApiResponse<MyInfoRes>> getMyInfoPosts(
-            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int id) {
-//        return ok(userService.getPrivateUser(id));
+    public ResponseEntity<ApiResponse<List<DetailPostRes>>> getMyTempPosts(
+            @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int userNo) {
+        return ok(postService.getUserTempPosts(userNo));
     }
 }

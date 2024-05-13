@@ -47,7 +47,7 @@ public class AuthService {
     public TokensDTO loginAndIssueTokens(LoginParam loginParam) throws Exception { //순서에 영향을 받음 PARAM을 .. 재사용성이 있으면 parameter을 써라
 
         // DB에 저장된 유저 정보 존재 확인
-        UserDTO user = userService.getUser(loginParam.getUserId(), findByUserId);
+        UserDTO user = userService.getUser(loginParam.getUserId());
 //        // 로그인 시도 제한 확인
 //        validateLoginAttempts(user);
         // 비밀번호 확인 - 실제 로그인

@@ -36,6 +36,15 @@ public class PostController extends BaseController{
         return ok(postService.getPublicPostIntroAllByOffset(basePagingParam));
     }
 
+    @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
+    @PostMapping("/list/{keyword}")
+    public ResponseEntity<ApiResponse<List<PublicPostRes>>> searchPosts(
+            @PathVariable String keyword) {
+        return ok(postService.searchPosts(keyword));
+    }
+
+
+
     /**
      * 새로운 게시물을 추가합니다.
      *
@@ -45,9 +54,9 @@ public class PostController extends BaseController{
     @Operation(summary = "새로운 게시물을 추가합니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<String>> insertPost(
-            @RequestAttribute("reqId") int id,
+            @RequestAttribute("reqId") int userNo,
             @RequestBody @Valid InsertPostParam insertPostParam) {
-        return ok(postService.insertPost(insertPostParam, id));
+        return ok(postService.insertPost(insertPostParam, userNo));
     }
 
     /**
@@ -73,10 +82,10 @@ public class PostController extends BaseController{
     @Operation(summary = "유저가 작성한 본인의 게시물을 업데이트(수정)합니다.")
     @PutMapping("/{postNo}")
     public ResponseEntity<ApiResponse<String>> updatePost(
-            @RequestAttribute("reqId") int id,
+            @RequestAttribute("reqId") int userNo,
             @PathVariable int postNo,
             @RequestBody @Valid UpdatePostParam updatePostParam) throws UnauthorizedAccessException {
-        return ok(postService.updatePost(updatePostParam, postNo, id));
+        return ok(postService.updatePost(updatePostParam, postNo, userNo));
     }
 
     /**
@@ -88,9 +97,9 @@ public class PostController extends BaseController{
     @Operation(summary = "유저가 작성한 본인의 게시물을 삭제합니다.")
     @DeleteMapping("/{postNo}")
     public ResponseEntity<ApiResponse<Integer>> deletePost(
-            @RequestAttribute("reqId") int id,
+            @RequestAttribute("reqId") int userNo,
             @PathVariable int postNo) throws BadRequestException, UnauthorizedAccessException {
-        return ok(postService.deletePost(postNo, id));
+        return ok(postService.deletePost(postNo, userNo));
     }
 
 }

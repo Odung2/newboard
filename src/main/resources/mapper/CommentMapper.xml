@@ -5,43 +5,46 @@
 <mapper namespace="com.wemade.newboard.mapper.CommentMapper">
 
     <select id="getCommentByPostId" parameterType="int" resultType="com.example.weboard.dto.CommentDTO">
-        SELECT * FROM comment WHERE post_id=#{postId}
+        SELECT * FROM comment WHERE post_no=#{postNo}
+    </select>
+    <!-- -->
+    <select id="getComments" parameterType="int" resultType="CommentRes">
+        SELECT comment.comment_no, comment.post_no, comment.contents, comment.created_at, comment.updated_at, user.name
+        FROM comment LEFT JOIN user ON comment.user_no = user.user_no
+        WHERE post_no = #{postNo}
+    </select>
+
+    <select id="getUserComments" parameterType="int" resultType="CommentRes">
+        SELECT comment.comment_no, comment.post_no, comment.contents, comment.created_at, comment.updated_at, user.name
+        FROM comment LEFT JOIN user ON comment.user_no = user.user_no
+        WHERE user.user_no = #{userNo}
     </select>
 
     <select id="getCommentByCommentId" parameterType="int" resultType="com.example.weboard.dto.CommentDTO">
-        SELECT * FROM comment WHERE comment_id=#{commentId}
+        SELECT * FROM comment WHERE comment_no=#{commentNo}
     </select>
 
     <insert id="insert" parameterType="com.example.weboard.dto.CommentDTO">
-        INSERT INTO comment (post_id, user_id, comment_text, created_by, updated_by, updated_at)
-        VALUES ( #{postId}, #{userId}, #{commentText}, #{userId}, null, null)
+        INSERT INTO comment (post_no, user_no, contents)
+        VALUES ( #{postNo}, #{userNo}, #{contents})
     </insert>
 
     <update id="update" parameterType="com.example.weboard.dto.CommentDTO">
         UPDATE comment
         <set>
-            <if test="commentText != null">
-                comment_text=#{commentText},
+            <if test="contents != null">
+                contents=#{contents},
             </if>
             <if test="updatedBy != null">
                 updated_by=#{updatedBy},
             </if>
-            <if test="updatedAt != null">
-                updated_at=#{updatedAt},
-            </if>
         </set>
-            WHERE comment_id=#{commentId}
+            WHERE comment_no=#{commentNo}
     </update>
 
     <delete id="delete" parameterType="int">
         DELETE FROM comment
-            WHERE comment_id=#{commentId}
+            WHERE comment_no=#{commentNo}
     </delete>
-
-    <select id="getComments" parameterType="int" resultType="CommentRes">
-        SELECT comment.comment_id, comment.post_id, comment.comment_text, comment.created_at, comment.updated_at, user.nickname
-            FROM comment LEFT JOIN user ON comment.user_id = user.id
-            WHERE post_id = #{postId}
-    </select>
 
 </mapper>

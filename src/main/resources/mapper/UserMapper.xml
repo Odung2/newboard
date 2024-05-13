@@ -3,35 +3,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.weboard.mapper.UserMapper">
-    <select id="getUserByIdOrUserId" parameterType="UserDTO" resultType="UserDTO">
-        SELECT * FROM user
-        <where>
-            <choose>
-                <when test="id != 0">
-                    AND id = #{id}
-                </when>
-                <when test="userId != null and userId !=''">
-                    AND user_id = #{userId}
-                </when>
-            </choose>
-        </where>
+    <!-- 패키지 만들 때 com. 회사 이름 . 서비스 .
+    패키지 경로 풀로 다 쓰지 말고 -->
+
+    <select id="getUserByUserId" parameterType="String" resultType="UserDTO">
+        SELECT * FROM user WHERE user_id = #{userId}
     </select>
 
-    <!-- 패키지 만들 때 com. 회사 이름 . 서비스 .
-    패키지 경로 풀로 다 쓰지 말고
+    <select id="getUserByUserNo" parameterType="int" resultType="UserDTO">
+        SELECT * FROM user WHERE user_no = #{userNo}
+    </select>
 
-     -->
-<!--    <select id="getIdByUserId" parameterType="String" resultType="Integer">-->
-<!--        SELECT id FROM user WHERE user_id =#{userId}-->
-<!--    </select>-->
+    <select id="getUserByEmail" parameterType="String" resultType="UserDTO">
+        SELECT * FROM user WHERE email = #{email}
+    </select>
 
     <select id="getPasswordById" parameterType="int" resultType="String">
-        SELECT password FROM user WHERE id = #{id}
+        SELECT password FROM user WHERE user_no = #{userNo}
     </select>
 
-    <insert id="insert" parameterType="UserDTO">
-        INSERT INTO user (user_id, nickname, password, updated_by, updated_at)
-        VALUES (#{userId}, #{nickname}, #{password}, null, null)
+    <select id="getEmail" parameterType="String" resultType="String">
+        SELECT email FROM user WHERE user_id = #{userId}
+    </select>
+
+    <select id="getPasswordById" parameterType="int" resultType="String">
+        SELECT password FROM user WHERE user_no = #{userNo}
+    </select>
+
+    <insert id="insert" parameterType="SignupParam">
+        INSERT INTO user (user_id, name, email, phone, password)
+        VALUES (#{userId}, #{name}, #{email}, #{phone}, #{password})
     </insert>
 
     <update id="update" parameterType="UserDTO">
@@ -40,8 +41,14 @@
             <if test="userId != null">
                 user_id = #{userId},
             </if>
-            <if test="nickname != null">
-                nickname = #{nickname},
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
             </if>
             <if test="password != null">
                 password = #{password},
@@ -49,57 +56,13 @@
             <if test="updatedBy != null">
                 updated_by = #{updatedBy},
             </if>
-            <if test="updatedAt != null">
-                updated_at = #{updatedAt},
-            </if>
         </set>
-        WHERE id=#{id}
+        WHERE user_no = #{userNo}
     </update>
-
 
     <delete id="delete" parameterType="int">
         DELETE FROM user
-            WHERE id = #{id}
+            WHERE user_no = #{userNo}
     </delete>
-
-    <update id="addLoginFailCount" parameterType="int">
-        UPDATE user
-        <set>
-            login_fail_count = user.login_fail_count +1
-        </set>
-        WHERE id = #{id}
-    </update>
-
-    <update id="resetLoginFailCount" parameterType="int">
-        UPDATE user
-        <set>
-            login_fail_count = 0
-        </set>
-        WHERE id = #{id}
-    </update>
-
-    <update id="lockUnlockUser" parameterType="int">
-        UPDATE user
-        <set>
-            is_locked = #{isLocked}
-        </set>
-        WHERE id = #{id}
-    </update>
-
-    <update id="updateLoginLocked" parameterType="UserDTO">
-        UPDATE user
-        <set>
-            login_locked_at = #{loginLockedAt}
-        </set>
-        WHERE id = #{id}
-    </update>
-
-    <update id="resetLoginLocked" parameterType="int">
-        UPDATE user
-        <set>
-            login_locked_at = null
-        </set>
-        WHERE id = #{id}
-    </update>
 
 </mapper>

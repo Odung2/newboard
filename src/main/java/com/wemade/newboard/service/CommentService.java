@@ -19,11 +19,7 @@ public class CommentService {
 
     private final CommentMapper commentMapper;
     private final AuthService authService;
-    /**
-     * 특정 게시물의 모든 댓글을 조회합니다.
-     * @param postId 댓글을 조회할 게시물의 ID
-     * @return 조회된 댓글 목록
-     */
+
     public List<CommentDTO> getCommentByPostId(int postId){
         return commentMapper.getCommentByPostId(postId);
     }
@@ -35,25 +31,16 @@ public class CommentService {
     public List<CommentRes> getCommentRes(int postId) {
         return commentMapper.getComments(postId);
     }
-
-    /**
-     * 새로운 댓글을 추가합니다.
-     * JWT 토큰에서 사용자 ID를 추출하고, 댓글에 게시물 ID와 사용자 ID를 설정한 후 데이터베이스에 삽입합니다.
-     *
-     * @param insertCommentParam 삽입할 댓글 데이터
-     * @param postId             댓글이 속할 게시물의 ID
-     * @param jwttoken           요청자의 JWT 토큰
-     * @return 데이터베이스에 삽입된 댓글 객체
-     */
-    public String insertComment(InsertCommentParam insertCommentParam, int postId, int id){
+    
+    public String insertComment(InsertCommentParam insertCommentParam, int postNo, int userNo){
 
         CommentDTO comment = new CommentDTO();
-        comment.setCommentText(insertCommentParam.getCommentText());
-        comment.setPostId(postId);
-        comment.setUserId(id);
+        comment.setContents(insertCommentParam.getContents());
+        comment.setPostNo(postNo);
+        comment.setUserNo(userNo);
 
         commentMapper.insert(comment);
-        return comment.commentText;
+        return comment.getContents();
     }
 
     /**
@@ -66,21 +53,21 @@ public class CommentService {
      */
     public String updateComment(UpdateCommentParam updateCommentParam, int commentId, int id) throws UnauthorizedAccessException {
 
-        if(getCommentByCommentId(commentId).getCreatedBy() != id){ // 본인이 쓴 댓글이 아닐 경우
+        if(getCommentByCommentId(commentId).getUserNo() != id){ // 본인이 쓴 댓글이 아닐 경우
             throw new UnauthorizedAccessException("타인의 댓글을 수정할 수 없습니다.");
         }
 
         CommentDTO comment = new CommentDTO();
-        comment.setCommentText(updateCommentParam.getCommentText());
+        comment.setContents(updateCommentParam.getContents());
 //        comment.setUserId(updateCommentParam.getUserId());
 //        comment.setPostId(updateCommentParam.getPostId());
-        comment.setUserId(id);
-        comment.setCommentId(commentId);
+        comment.setUserNo(id);
+        comment.setCommentNo(commentId);
         //FIXME auditListener로 고쳐야 함
         comment.setUpdatedBy(id);
 
         commentMapper.update(comment);
-        return comment.commentText;
+        return comment.contents;
     }
 
     /**
@@ -92,7 +79,7 @@ public class CommentService {
     public int deleteComment(int commentId, int id) throws UnauthorizedAccessException {
         CommentDTO comment = getCommentByCommentId(commentId);
         if(comment==null) throw new NotFoundException("해당 댓글이 존재하지 않습니다.");
-        if(comment.getCreatedBy() != id) throw new UnauthorizedAccessException("타인의 댓글을 삭제할 수 없습니다.");
+        if(comment.getUserNo() != id) throw new UnauthorizedAccessException("타인의 댓글을 삭제할 수 없습니다.");
 
         return commentMapper.delete(commentId);
     }
