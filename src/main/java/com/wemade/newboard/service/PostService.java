@@ -66,8 +66,8 @@ public class PostService {
         return searchPosts;
     }
 
-    public List<DetailPostRes> getUserPosts(int id) {
-        List<DetailPostRes> userPosts = postMapper.getUserPosts(id);
+    public List<DetailPostRes> getUserPosts(int userNo) {
+        List<DetailPostRes> userPosts = postMapper.getUserPosts(userNo);
         if (userPosts == null) {
             throw new NotFoundException("사용자를 찾을 수 없습니다.");
         }

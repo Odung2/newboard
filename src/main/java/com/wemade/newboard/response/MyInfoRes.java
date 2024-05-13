@@ -18,7 +18,7 @@ public class MyInfoRes {
 
     public MyInfoRes(UserDTO user){
         this.userId = user.getUserId();
-        this.nickname = user.getNickname();
+        this.nickname = user.getName();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
     }

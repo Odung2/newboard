@@ -15,9 +15,8 @@ public interface PostMapper extends BaseMapper {
 
     List<PostDTO> getPostAll();
     List<PostDTO> getPostAllByOffset(@Param("offset") int currpage, @Param("pagesize") int pagesize);
-
+    List<DetailPostRes> getUserPosts(int userNo);
     int insert(PostDTO post);
-
     int update(PostDTO post);
     @Override
     int delete(int postId);
