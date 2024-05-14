@@ -1,7 +1,9 @@
 package com.wemade.newboard.service;
 
+import com.wemade.newboard.dto.FileDTO;
 import com.wemade.newboard.dto.PostDTO;
 import com.wemade.newboard.dto.PostViewBO;
+import com.wemade.newboard.exception.InvalidFileException;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
 import com.wemade.newboard.mapper.PostMapper;
 import com.wemade.newboard.param.BasePagingParam;
@@ -12,9 +14,13 @@ import com.wemade.newboard.response.PublicPostRes;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -81,16 +87,94 @@ public class PostService {
      * @param userNo              요청자의 id
      * @return 데이터베이스에 삽입된 게시물 객체
      */
-    public String insertPost(InsertPostParam insertPostParam, int userNo) {
-
+    public String insertPost(InsertPostParam insertPostParam, int userNo, ArrayList<MultipartFile> files, Model model) throws IOException {
         PostDTO post = new PostDTO();
         post.setTitle(insertPostParam.getTitle());
         post.setContents(insertPostParam.getContents());
         post.setUserNo(userNo);
         post.setIsTemp(insertPostParam.isTemp());
-
         postMapper.insert(post);
+
+        int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, insertPostParam.getTitle());
+        if(files != null) {
+            validateFiles(files); // 파일 유효성 검사
+            uploadFiles(postNo, userNo, insertPostParam.isTemp(), files);
+        }
+
         return post.getTitle();
+    }
+
+    private void validateFiles(ArrayList<MultipartFile> files) {
+        long maxTotalFileSize = 20 * 1024 * 1024; // 20MB
+        long totalFileSize = 0;
+        int fileCount = 0;
+
+        for(MultipartFile file : files) {
+            long fileSize = file.getSize();
+
+            // 파일 크기 검사
+            if (!isFileValidSize(fileSize)) throw new InvalidFileException("5MB 이하의 파일만 업로드 가능합니다.");
+
+            // 파일 확장자 검사
+            if (!isFileValidExtension(file)) throw new InvalidFileException(".jpg, .png, .gif 확장자의 파일만 업로드 가능합니다.");
+
+            fileCount++;
+            totalFileSize += fileSize;
+
+            if(fileCount > 10) throw new InvalidFileException("10개까지의 파일만 업로드 가능합니다. 11개부터 파일은 업로드되지 않습니다.");
+
+            if(totalFileSize > maxTotalFileSize) throw new InvalidFileException("합계 20MB 이상의 파일은 업로드가 불가능합니다.");
+        }
+    }
+
+    private boolean isFileValidExtension(MultipartFile file) {
+        String contentType = file.getContentType();
+        // 파일의 MIME 타입에서 확장자를 추출
+        String fileExtension = getExtensionFromContentType(contentType);
+        // 허용된 확장자 목록
+        List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "gif");
+        // 허용된 확장자 목록에 포함되어 있는지 확인
+        return allowedExtensions.contains(fileExtension.toLowerCase());
+    }
+
+    private String getExtensionFromContentType(String contentType) {
+        // MIME 타입에서 확장자 추출
+        if (contentType.equals("image/jpeg")) {
+            return "jpg";
+        } else if (contentType.equals("image/png")) {
+            return "png";
+        } else if (contentType.equals("image/gif")) {
+            return "gif";
+        } else {
+            // 기타 MIME 타입에 대한 처리
+            return "";
+        }
+    }
+
+
+    private boolean isFileValidSize(long fileSize) {
+        long maxFileSizePerFile = 5 * 1024 * 1024; // 5MB
+        return fileSize <= maxFileSizePerFile;
+    }
+    private void uploadFiles(int postNo, int userNo, boolean temp, ArrayList<MultipartFile> files) throws IOException {
+        String uploadPath = "/Users/wm-id002518/newboardfiles/";
+
+        for(MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            UUID uuid = UUID.randomUUID();
+            String savedFileName = uuid.toString() + "_" + originalFileName;
+            File destFile = new File(uploadPath + savedFileName);
+            file.transferTo(destFile);
+
+            FileDTO fileform = new FileDTO();
+            fileform.setPostNo(postNo);
+            fileform.setUserNo(userNo);
+            fileform.setFileExt(originalFileName.substring(originalFileName.lastIndexOf(".")));
+            fileform.setFileName(originalFileName);
+            fileform.setFilePath(uploadPath + savedFileName);
+            fileform.setTemp(temp);
+            postMapper.uploadFile(fileform);
+        }
     }
 
     /**

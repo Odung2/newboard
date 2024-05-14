@@ -12,8 +12,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -56,8 +60,9 @@ public class PostController extends BaseController{
     @PostMapping
     public ResponseEntity<ApiResponse<String>> insertPost(
             @RequestAttribute("reqId") int userNo,
-            @RequestBody @Valid InsertPostParam insertPostParam) {
-        return ok(postService.insertPost(insertPostParam, userNo));
+            @RequestBody @Valid InsertPostParam insertPostParam,
+            @RequestParam("uploadFileMulti") ArrayList<MultipartFile> files, Model model) throws IOException {
+        return ok(postService.insertPost(insertPostParam, userNo, files, model));
     }
 
     /**

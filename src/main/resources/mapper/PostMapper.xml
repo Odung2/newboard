@@ -52,6 +52,19 @@
         </if>
     </select>
 
+    <select id="getPostNoByUserNoAndTitle" resultType="int">
+        SELECT post_no
+        FROM post
+        WHERE user_no=#{userNo} AND title=#{title}}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <insert id="uploadFile" parameterType="FileDTO">
+        INSERT INTO file (post_no, user_no, file_path, file_name, file_ext, is_temp)
+        VALUES (#{postNo}, #{userNo}, #{filePath}, #{fileName}, #{fileExt}, #{isTemp})
+    </insert>
+
     <insert id="insert" parameterType="PostDTO">
         INSERT INTO post (title, user_no, contents, is_temp)
         VALUES (#{title}, #{userNo}, #{contents}, #{isTemp});

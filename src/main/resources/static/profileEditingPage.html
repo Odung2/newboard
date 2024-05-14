@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 수정 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>프로필 수정</h2>
+    <form action="http://localhost:8080/newboard/my-page" method="post">
+        <input type="text" name="userId" placeholder="아이디" required>
+        <input type="text" name="name" placeholder="이름 (한글만 입력)" required>
+        <input type="email" name="email" placeholder="이메일" required>
+        <input type="tel" name="phone" placeholder="전화번호 (숫자만 입력)" required>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <input type="submit" value="">
+    </form>
+    <form action="http://localhost:8080/newboard/my-page" method="delete">
+        <input type="submit" value="회원 탈퇴">
+    </form>
+    <!-- FIXME : 회원가입 말고 내가 작성한 -->
+    <button id="signupButton">회원가입</button>
+</div>
+    <script>
+        document.getElementById("signupButton").addEventListener("click", function() {
+            window.location.href = "signupForm.html";
+        });
+    </script>
+</body>
+</html>

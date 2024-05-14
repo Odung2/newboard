@@ -116,11 +116,15 @@ public class GlobalExceptionHandler extends BaseController {
         //e.getMessage()는 access token 을 발급해줄 수 없다는 메시지
         return nok(403, e.getMessage());
     }
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidFileException(InvalidFileException e){
+        return nok(400, "올바른 파일 형식이 아닙니다.", e.getMessage());
+    }
+
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<ApiResponse<Object>> handleUnauthorizedAccessException(UnauthorizedAccessException e){
         return nok(403, e.getMessage());
     }
-
     @ExceptionHandler(CredentialException.class)
     public ResponseEntity<ApiResponse<Object>> handleCredentialException(CredentialException e){
         return nok(403, e.getMessage());
@@ -130,6 +134,7 @@ public class GlobalExceptionHandler extends BaseController {
     public ResponseEntity<ApiResponse<Object>> handleNotFoundException(org.webjars.NotFoundException e){
         return nok(404, "해당 정보가 존재하지 않습니다.", e.getMessage());
     }
+
 
     /**
      * javax valid에 의한 유효성 검증 에러
