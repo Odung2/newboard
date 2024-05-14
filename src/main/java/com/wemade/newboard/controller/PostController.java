@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/newboard/posts")
+@RequestMapping("/newboard")
 @RequiredArgsConstructor
 public class PostController extends BaseController{
 
@@ -34,14 +34,14 @@ public class PostController extends BaseController{
      * @return 게시물 목록과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
-    @PostMapping("/list")
+    @PostMapping("/posts/list")
     public ResponseEntity<ApiResponse<List<PublicPostRes>>> getPostAllByOffset(
             @RequestBody @Valid BasePagingParam basePagingParam) {
         return ok(postService.getPublicPostIntroAllByOffset(basePagingParam));
     }
 
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
-    @PostMapping("/list/{keyword}")
+    @PostMapping("/posts/list/{keyword}")
     public ResponseEntity<ApiResponse<List<PublicPostRes>>> searchPosts(
             @PathVariable String keyword,
             @RequestBody @Valid BasePagingParam basePagingParam) {
@@ -57,7 +57,7 @@ public class PostController extends BaseController{
      * @return 추가된 게시물과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "새로운 게시물을 추가합니다.")
-    @PostMapping
+    @PostMapping("/posts")
     public ResponseEntity<ApiResponse<String>> insertPost(
             @RequestAttribute("reqId") int userNo,
             @RequestBody @Valid InsertPostParam insertPostParam,
@@ -72,7 +72,7 @@ public class PostController extends BaseController{
      * @return 조회된 게시물과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "특정 게시물을 ID로 조회합니다.")
-    @GetMapping("/{postNo}")
+    @GetMapping("/posts/{postNo}")
     public ResponseEntity<ApiResponse<PostViewBO>> getPostById(
             @PathVariable int postNo) {
         return ok(postService.getPostViewById(postNo));
@@ -86,7 +86,7 @@ public class PostController extends BaseController{
      * @return 업데이트된 게시물과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "유저가 작성한 본인의 게시물을 업데이트(수정)합니다.")
-    @PutMapping("/{postNo}")
+    @PutMapping("/posts/{postNo}")
     public ResponseEntity<ApiResponse<String>> updatePost(
             @RequestAttribute("reqId") int userNo,
             @PathVariable int postNo,

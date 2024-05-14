@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새 게시물 작성</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 400px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="submit"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>새 게시물 작성</h2>
+    <form id="postup-form">
+        <input type="text" id="title" name="title" placeholder="제목" required><br>
+<!--        <textarea type="text" id="contents" name="contents" placeholder="본문" required></textarea><br>-->
+<!--        <input type="checkbox" id="isTemp" name="isTemp">-->
+<!--        <label for="isTemp">임시 저장</label><br><br>-->
+
+        <input type="submit" value="작성하기">
+    </form>
+</div>
+<script>
+    document.getElementById("postup-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 submit 동작을 막습니다.
+
+        var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+
+        var jsonObject = {};
+        formData.forEach(function(value, key){
+            jsonObject[key] = value;
+        });
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://localhost:8080/newboard/posts", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var responseJson = JSON.parse(xhr.responseText);
+                if(responseJson.resultCode !== 0) {
+                    let errorMessage = responseJson.resultMessage;
+                    if (responseJson.data && responseJson.data.message) {
+                        errorMessage += "\n" + responseJson.data.message;
+                    }else if(responseJson.data){
+                        errorMessage += "\n" + responseJson.data;
+                    }
+                    alert(errorMessage);
+                }else{
+                    let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+                    alert(successMessage);
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+    });
+    // document.getElementById("upload-post-form").addEventListener("submit", function(event) {
+    //     event.preventDefault(); // 기본 submit 동작을 막습니다.
+    //
+    //     var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+    //
+    //     var jsonObject = {};
+    //     formData.forEach(function(value, key){
+    //         jsonObject[key] = value;
+    //     });
+    //
+    //     // 사용자로부터 JWT 토큰을 입력받습니다.
+    //     // var token = prompt("JWT 토큰을 입력하세요:");
+    //
+    //     var xhr = new XMLHttpRequest();
+    //     xhr.open("POST", "http://localhost:8080/newboard/posts", true);
+    //     // xhr.setRequestHeader("Authorization", "Bearer " + token);
+    //
+    //     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    //
+    //     xhr.onreadystatechange = function() {
+    //         if (xhr.readyState === XMLHttpRequest.DONE) {
+    //             var responseJson = JSON.parse(xhr.responseText);
+    //             if(responseJson.resultCode !== 0) {
+    //                 let errorMessage = responseJson.resultMessage;
+    //                 if (responseJson.data && responseJson.data.message) {
+    //                     errorMessage += "\n" + responseJson.data.message;
+    //                 }else if(responseJson.data){
+    //                     errorMessage += "\n" + responseJson.data;
+    //                 }
+    //                 alert(errorMessage);
+    //             }else{
+    //                 let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+    //                 alert(successMessage);
+    //             }
+    //         }
+    //     };
+    //
+    //     xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+    // });
+</script>
+</body>
+</html>
