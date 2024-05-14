@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 @Data
 public class CommentRes {
     @Schema(description = "댓글 ID")
-    public int commentId;
+    public int commentNo;
     @Schema(description = "게시물 ID")
-    public int postId;
-    @Schema(description = "사용자 닉네임")
-    public String nickname;
+    public int postNo;
+    @Schema(description = "사용자 이름")
+    public String name;
     @Schema(description = "댓글 내용")
     public String commentText;
     @Schema(description = "만든 일시")

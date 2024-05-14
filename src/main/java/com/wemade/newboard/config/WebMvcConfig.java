@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebMvcConfig  implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
     private final long MAX_AGE_SECS=3600;
 
     private final JwtInterceptor jwtInterceptor;
@@ -18,6 +18,7 @@ public class WebMvcConfig  implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**") //모든 경로 허락(모든 컨트롤러)
                 .allowedOrigins("http://localhost:5173") // 이 Origin이면 허락
+                .allowedOrigins("http://localhost:63342")
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // 이 메소드면 허락
                 .allowedHeaders("*") //
 //                .allowCredentials(true) //쿠키요청을 여부, 보안상 이슈가 발생할 수 있음
@@ -30,6 +31,7 @@ public class WebMvcConfig  implements WebMvcConfigurer {
                 .addPathPatterns("/newboard/**")
                 .excludePathPatterns("/newboard/public/**") // signup, login, refresh-token, {id}
                 .excludePathPatterns("/newboard/posts/public/**") // post/public/** 관련은 제외
+//                .excludePathPatterns("/newboard/upload")
         ;
 
     }

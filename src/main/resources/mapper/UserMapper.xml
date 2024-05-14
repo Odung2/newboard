@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.weboard.mapper.UserMapper">
+<mapper namespace="com.wemade.newboard.mapper.UserMapper">
     <!-- 패키지 만들 때 com. 회사 이름 . 서비스 .
     패키지 경로 풀로 다 쓰지 말고 -->
 
@@ -24,10 +24,6 @@
 
     <select id="getEmail" parameterType="String" resultType="String">
         SELECT email FROM user WHERE user_id = #{userId}
-    </select>
-
-    <select id="getPasswordById" parameterType="int" resultType="String">
-        SELECT password FROM user WHERE user_no = #{userNo}
     </select>
 
     <insert id="insert" parameterType="SignupParam">

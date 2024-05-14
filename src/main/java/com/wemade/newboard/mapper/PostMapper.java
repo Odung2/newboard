@@ -17,7 +17,7 @@ public interface PostMapper extends BaseMapper {
     List<PostDTO> getPostAllByOffset(@Param("offset") int currpage, @Param("pagesize") int pagesize);
     List<DetailPostRes> getUserPosts(int userNo);
     List<DetailPostRes> getUserTempPosts(int userNo);
-    List<PublicPostRes> SearchPosts(String keyword);
+    List<PublicPostRes> searchPosts(@Param("keyword") String keyword, @Param("offset") int currpage, @Param("pagesize") int pagesize );
     int insert(PostDTO post);
     int update(PostDTO post);
     @Override

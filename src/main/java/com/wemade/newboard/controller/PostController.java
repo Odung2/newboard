@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("weboard/posts")
+@RequestMapping("/newboard/posts")
 @RequiredArgsConstructor
 public class PostController extends BaseController{
 
@@ -39,8 +39,9 @@ public class PostController extends BaseController{
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
     @PostMapping("/list/{keyword}")
     public ResponseEntity<ApiResponse<List<PublicPostRes>>> searchPosts(
-            @PathVariable String keyword) {
-        return ok(postService.searchPosts(keyword));
+            @PathVariable String keyword,
+            @RequestBody @Valid BasePagingParam basePagingParam) {
+        return ok(postService.searchPosts(keyword, basePagingParam));
     }
 
 

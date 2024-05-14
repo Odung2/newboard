@@ -48,8 +48,8 @@ public class PostService {
         return postMapper.getPostById(postNo);
     }
 
-    public List<PublicPostRes> searchPosts(String param) {
-        List<PublicPostRes> searchPosts = postMapper.SearchPosts(param);
+    public List<PublicPostRes> searchPosts(String param, BasePagingParam basePagingParam) {
+        List<PublicPostRes> searchPosts = postMapper.searchPosts(param, basePagingParam.getOffset(), basePagingParam.getPageSize());
         if (searchPosts == null) {
             throw new NotFoundException("사용자를 찾을 수 없습니다.");
         }
@@ -86,11 +86,8 @@ public class PostService {
         PostDTO post = new PostDTO();
         post.setTitle(insertPostParam.getTitle());
         post.setContents(insertPostParam.getContents());
-//        post.setFileData(insertPostParam.getFileData());
         post.setUserNo(userNo);
-
-
-
+        post.setIsTemp(insertPostParam.isTemp());
 
         postMapper.insert(post);
         return post.getTitle();
@@ -117,6 +114,7 @@ public class PostService {
         post.setPostNo(postNo);
         //FIXME auditListener로 고쳐야 함
         post.setUpdatedBy(userNo);
+        post.setIsTemp(updatePostParam.isTemp());
 
         postMapper.update(post);
         return post.getTitle();

@@ -4,7 +4,7 @@
 
 <mapper namespace="com.wemade.newboard.mapper.CommentMapper">
 
-    <select id="getCommentByPostId" parameterType="int" resultType="com.example.weboard.dto.CommentDTO">
+    <select id="getCommentByPostId" parameterType="int" resultType="CommentDTO">
         SELECT * FROM comment WHERE post_no=#{postNo}
     </select>
     <!-- -->
@@ -20,16 +20,16 @@
         WHERE user.user_no = #{userNo}
     </select>
 
-    <select id="getCommentByCommentId" parameterType="int" resultType="com.example.weboard.dto.CommentDTO">
+    <select id="getCommentByCommentId" parameterType="int" resultType="CommentDTO">
         SELECT * FROM comment WHERE comment_no=#{commentNo}
     </select>
 
-    <insert id="insert" parameterType="com.example.weboard.dto.CommentDTO">
+    <insert id="insert" parameterType="CommentDTO">
         INSERT INTO comment (post_no, user_no, contents)
         VALUES ( #{postNo}, #{userNo}, #{contents})
     </insert>
 
-    <update id="update" parameterType="com.example.weboard.dto.CommentDTO">
+    <update id="update" parameterType="CommentDTO">
         UPDATE comment
         <set>
             <if test="contents != null">

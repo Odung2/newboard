@@ -9,11 +9,11 @@ import java.util.List;
 public class DetailPostRes {
 
     @Schema(description = "게시물 ID")
-    private int postId;
+    private int postNo;
     @Schema(description = "제목")
     private String title;
-    @Schema(description = "사용자 닉네임")
-    private String nickname;
+    @Schema(description = "사용자 이름")
+    private String name;
     @Schema(description = "조회수")
     private int views;
     @Schema(description = "내용")

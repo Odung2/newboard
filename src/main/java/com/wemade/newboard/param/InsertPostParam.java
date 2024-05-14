@@ -22,7 +22,7 @@ public class InsertPostParam {
     private String contents;
 
     @Schema(description = "임시 저장 여부")
-    private boolean isTemp = false;
+    private boolean isTemp;
 
     @Nullable
     @Size( max=500, message = "파일 데이터 경로는 1자 이상 500자 이하만 가능합니다.")

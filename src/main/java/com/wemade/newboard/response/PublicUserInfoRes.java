@@ -7,14 +7,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 @Data
 public class PublicUserInfoRes {
-    @Schema(description = "사용자 닉네임")
-    private String nickname;
+    @Schema(description = "사용자 이름")
+    private String name;
 
     @Schema(description = "만든 일시")
     private LocalDateTime createdAt;
 
     public PublicUserInfoRes(UserDTO user) {
-        this.nickname = user.getName();
+        this.name = user.getName();
         this.createdAt = user.getCreatedAt();
     }
 }

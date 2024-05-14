@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 @Data
 public class PublicPostRes {
     @Schema(description = "포스트 아이디")
-    private int postId;
+    private int postNo;
     @Schema(description = "포스트 제목")
     private String title;
-    @Schema(description = "사용자 닉네임")
-    private String nickname;
+    @Schema(description = "사용자 이름")
+    private String name;
     @Schema(description = "조회수")
     private int views;
     @Schema(description = "만든 일시")

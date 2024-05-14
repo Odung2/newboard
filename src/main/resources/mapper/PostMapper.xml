@@ -2,9 +2,19 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.weboard.mapper.PostMapper">
+<mapper namespace="com.wemade.newboard.mapper.PostMapper">
     <select id="getPostById" parameterType="int" resultType="PostDTO">
         SELECT * FROM post WHERE post_no=#{postNo}
+    </select>
+
+    <select id="searchPosts" parameterType="String" resultType="PublicPostRes">
+        SELECT post.post_no, post.title, post.created_at, user.name
+        FROM post LEFT JOIN user ON post.user_no = user.user_no
+        WHERE post.title LIKE CONCAT('%', #{keyword}, '%') OR user.name LIKE CONCAT('%', #{keyword}, '%')
+            LIMIT #{pagesize}
+            <if test="offset!=null">
+                OFFSET #{offset}
+            </if>
     </select>
 
     <select id="getPostAll" resultType="PostDTO">
@@ -43,8 +53,8 @@
     </select>
 
     <insert id="insert" parameterType="PostDTO">
-        INSERT INTO post (title, user_no, contents)
-        VALUES (#{title}, #{userNo}, #{contents});
+        INSERT INTO post (title, user_no, contents, is_temp)
+        VALUES (#{title}, #{userNo}, #{contents}, #{isTemp});
     </insert>
 
     <update id="update" parameterType="PostDTO">
@@ -58,6 +68,9 @@
             </if>
             <if test="contents != null">
                 contents=#{contents},
+            </if>
+            <if test="isTemp != null">
+                is_temp=#{isTemp},
             </if>
         </set>
             WHERE post_no = #{postNo}

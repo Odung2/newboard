@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("weboard/comments")
+@RequestMapping("/newboard/comments")
 @RequiredArgsConstructor
 public class CommentController extends BaseController{
 
@@ -23,7 +23,7 @@ public class CommentController extends BaseController{
      * @return 추가된 CommentDTO와 상태 메시지를 포함하는 ResponseEntity를 반환합니다.
      */
     @Operation(summary = "특정 게시물에 새 댓글을 추가합니다.")
-    @PostMapping("/{postId}")
+    @PostMapping("/{postNo}")
     public ResponseEntity<ApiResponse<String>> insertComment(
             @RequestAttribute("reqId") int userNo,
             @PathVariable int postNo,
