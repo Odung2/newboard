@@ -63,7 +63,7 @@
 <body>
 <div class="container">
     <h2>새 게시물 작성</h2>
-    <form id="newpost-form" action="http://localhost:8080/newboard/posts" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+    <form id="newpost-form" enctype="multipart/form-data" onsubmit="return validateForm()">
         <label for="title">제목:</label><br>
         <input type="text" id="title" name="title" required><br>
 
@@ -82,68 +82,74 @@
         <input type="submit" value="Submit">
     </form>
 </div>
-<script>
-    document.getElementById("newpost-form").addEventListener("submit", function(event) {
-        event.preventDefault(); // 기본 submit 동작을 막습니다.
+    <script>
+        document.getElementById("newpost-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // 기본 submit 동작을 막습니다.
 
-        var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+            var formData = new FormData(this); // 폼 데이터를 가져옵니다.
 
-        var jsonObject = {};
-        formData.forEach(function(value, key){
-            jsonObject[key] = value;
+            var jsonObject = {};
+            formData.forEach(function(value, key){
+                jsonObject[key] = value;
+            });
+
+            // 사용자로부터 JWT 토큰을 입력받습니다.
+            var token = prompt("JWT 토큰을 입력하세요:");
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:8080/newboard/posts", true);
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    var responseJson = JSON.parse(xhr.responseText);
+                    if(responseJson.resultCode !== 0) {
+                        let errorMessage = responseJson.resultMessage;
+                        if (responseJson.data && responseJson.data.message) {
+                            errorMessage += "\n" + responseJson.data.message;
+                        }else if(responseJson.data){
+                            errorMessage += "\n" + responseJson.data;
+                        }
+                        alert(errorMessage);
+                    }else{
+                        let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+                        alert(successMessage);
+                    }
+                }
+            };
+
+            xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
         });
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:8080/newboard/posts", true);
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        function validateForm() {
+            var files = document.getElementById('uploadFileMulti').files;
+            var totalSize = 0;
+            var maxFileSize = 5 * 1024 * 1024; // 5MB
+            var maxTotalSize = 20 * 1024 * 1024; // 20MB
+            var maxFileCount = 10;
 
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                var responseJson = JSON.parse(xhr.responseText);
-                if(responseJson.resultCode !== 0) {
-                    let errorMessage = responseJson.resultMessage;
-                    if (responseJson.data && responseJson.data.message) {
-                        errorMessage += "\n" + responseJson.data.message;
-                    }else if(responseJson.data){
-                        errorMessage += "\n" + responseJson.data;
-                    }
-                    alert(errorMessage);
-                }else{
-                    let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
-                    alert(successMessage);
+            for (var i = 0; i < files.length; i++) {
+                totalSize += files[i].size;
+                if (files[i].size > maxFileSize) {
+                    alert('각 파일은 최대 5MB를 초과할 수 없습니다.');
+                    return false;
                 }
             }
-        };
 
-        xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
-    });
-    function validateForm() {
-        var files = document.getElementById('uploadFileMulti').files;
-        var totalSize = 0;
-        var maxFileSize = 5 * 1024 * 1024; // 5MB
-        var maxTotalSize = 20 * 1024 * 1024; // 20MB
-        var maxFileCount = 10;
-
-        for (var i = 0; i < files.length; i++) {
-            totalSize += files[i].size;
-            if (files[i].size > maxFileSize) {
-                alert('각 파일은 최대 5MB를 초과할 수 없습니다.');
+            if (totalSize > maxTotalSize) {
+                alert('총 파일 크기는 최대 20MB를 초과할 수 없습니다.');
                 return false;
             }
-        }
 
-        if (totalSize > maxTotalSize) {
-            alert('총 파일 크기는 최대 20MB를 초과할 수 없습니다.');
-            return false;
-        }
+            if (files.length > maxFileCount) {
+                alert('최대 10개의 파일만 업로드할 수 있습니다.');
+                return false;
+            }
 
-        if (files.length > maxFileCount) {
-            alert('최대 10개의 파일만 업로드할 수 있습니다.');
-            return false;
+            return true;
         }
-
-        return true;
-    }
-</script>
+    </script>
 </body>
 </html>
