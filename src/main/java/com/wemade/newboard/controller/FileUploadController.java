@@ -2,6 +2,7 @@ package com.wemade.newboard.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,8 +17,8 @@ import java.util.UUID;
 @RequestMapping("/newboard")
 @RequiredArgsConstructor
 public class FileUploadController {
-    @RequestMapping("/upload")
-    public String fileUploadMultiple(@RequestParam("uploadFileMulti") ArrayList<MultipartFile> files, Model model) throws IOException {
+    @PostMapping("/upload")
+    public String fileUploadMultiple(@RequestParam("uploadFileMulti") ArrayList<MultipartFile> files) throws IOException {
         String savedFileName = "";
         // 1. 파일 저장 경로 설정 : 실제 서비스되는 위치(프로젝트 외부에 저장)
         String uploadPath = "/Users/wm-id002518/newboardfiles/";
@@ -37,7 +38,7 @@ public class FileUploadController {
             file.transferTo(file1);
         }
         // model로 저장
-        model.addAttribute("originalFileNameList", originalFileNameList);
+//        model.addAttribute("originalFileNameList", originalFileNameList);
         return "upload/fileUploadMultipleResult";
     }
 }

@@ -21,6 +21,16 @@ spring:
     redis:
       host: localhost
       port: 6379
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    mode: HTML
+  mvc:
+    static-path-pattern: /static/**
+  web:
+    resources:
+      add-mappings: false
 # mybatis config
 mybatis:
   configuration:

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>로그인</h2>
+    <form th:action="@{http://localhost:8080/newboard/public/login}" method="post" id="login-form">
+        <input type="text" name="userId" placeholder="아이디" required>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <input type="submit" value="로그인하기">
+    </form>
+    <br>
+<!--    <button id="signupButton">회원가입</button>-->
+    <!-- FIXME : 비번찾기 필요-->
+    <a href="http://localhost:8080/newboard/public/sign-up"><button>회원가입하기</button></a>
+    <button id="mypage-link">내 프로필 보기</button>
+
+</div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // 기본 submit 동작을 막습니다.
+
+            var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+
+            var jsonObject = {};
+            formData.forEach(function(value, key){
+                jsonObject[key] = value;
+            });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:8080/newboard/public/login", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    var responseJson = JSON.parse(xhr.responseText);
+                    if(responseJson.resultCode !== 0) {
+                        let errorMessage = responseJson.resultMessage;
+                        if (responseJson.data && responseJson.data.message) {
+                            errorMessage += "\n" + responseJson.data.message;
+                        }else if(responseJson.data){
+                            errorMessage += "\n" + responseJson.data;
+                        }
+                        alert(errorMessage);
+                    }else{
+                        let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+                        var accessToken = responseJson.data.accessToken;
+                        var refreshToken = responseJson.data.refreshToken;
+
+                        // 추출한 토큰을 로컬 스토리지에 저장
+                        document.cookie = "accessToken=" + accessToken + "; path=/"; // path는 애플리케이션의 루트로 설정합니다.
+                        localStorage.setItem('accessToken', accessToken);
+                        // localStorage.setItem('refreshToken', refreshToken);
+                        alert(successMessage);
+                    }
+                }
+            };
+
+            xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+        });
+
+        // document.getElementById("signupButton").addEventListener("click", function() {
+        //     window.location.href = "signupForm.html";
+        // });
+    </script>
+    <script>
+
+        document.getElementById("mypage-link").addEventListener("click", function(event) {
+            event.preventDefault(); // 기본 submit 동작을 막습니다.
+
+            // var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+            //
+            var jsonObject = {};
+            // formData.forEach(function(value, key){
+            //     jsonObject[key] = value;
+            // });
+
+            // var token = prompt("JWT 토큰을 입력하세요:");
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8080/newboard/public/show-my-page", true);
+            // var accessToken = localStorage.getItem('accessToken');
+            // 쿠키에서 accessToken 가져오기
+            var cookies = document.cookie.split(';');
+            var accessToken = null;
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith("accessToken=")) {
+                    accessToken = cookie.substring("accessToken=".length, cookie.length);
+                    console.log(accessToken);
+                    break;
+                }
+            }
+
+            // 헤더에 토큰 설정
+
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            // xhr.setRequestHeader('Authorization', 'Bearer ' + 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2IiwidXNlcklkIjoiVDEgWmV1cyIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MTU5MzcxMDcsImV4cCI6MTcxNTk0MDcwN30.G7jHKkg8emK0flfnx_mbxA6yyiIoAnSkpJWDDi00cYEVpFv31QlyjQYaRFjFYw3ipUc7QeQ95-P3TAOMDG_2Ww');
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            // xhr.onreadystatechange = function() {
+            //     if (xhr.readyState === XMLHttpRequest.DONE) {
+            //         var responseJson = JSON.parse(xhr.responseText);
+            //         if(responseJson.resultCode !== 0) {
+            //             let errorMessage = responseJson.resultMessage;
+            //             if (responseJson.data && responseJson.data.message) {
+            //                 errorMessage += "\n" + responseJson.data.message;
+            //             }else if(responseJson.data){
+            //                 errorMessage += "\n" + responseJson.data;
+            //             }
+            //             alert(errorMessage);
+            //         }else{
+            //             let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+            //             alert(successMessage);
+            //         }
+            //     }
+            // };
+
+            xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+        });
+
+    </script>
+</body>
+</html>

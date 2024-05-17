@@ -17,12 +17,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.ui.Model;
+
 
 import java.util.List;
 
 @RequestMapping("/newboard")
-@RestController
+//@RestController
+@Controller
 @RequiredArgsConstructor
 public class UserController extends BaseController{
     private final UserService userService;
@@ -31,6 +36,11 @@ public class UserController extends BaseController{
     private final PostService postService;
     private final CommentService commentService;
 
+
+    @GetMapping("/public/login")
+    public String showLoginPage() {
+        return "login"; // signup.html 템플릿을 가리킵니다.
+    }
     /**
      * 로그인
      * @param loginParam [userId, password]
@@ -59,13 +69,17 @@ public class UserController extends BaseController{
             ) throws Exception {
         return ok("새로 발급된 액세스 토큰으로 접속해주세요.", authService.issueNewAccessToken(accessJWT, refreshJWT));
     }
-
+    @GetMapping("/public/sign-up")
+    public String showSignupPage() {
+        return "signup"; // signup.html 템플릿을 가리킵니다.
+    }
     /**
      * 회원가입
      *
      * @param signupParam 등록할 사용자의 데이터를 담은 DTO(userId, nickname, password)
      * @return user 등록된 유저 정보
      */
+
     @Operation(summary = "회원가입(새로운 사용자 등록)", description = "새로운 사용자를 등록합니다.")
     @PostMapping("/public/sign-up")
     public ResponseEntity<ApiResponse<String>> SignUp(
@@ -84,6 +98,11 @@ public class UserController extends BaseController{
     public ResponseEntity<ApiResponse<String>> findPassword(
             @RequestBody @Valid FindPasswordParam findPasswordParam) throws Exception {
         return ok(userService.findPassword(findPasswordParam));
+    }
+
+    @GetMapping("/public/show-my-page")
+    public String showMyPage() {
+        return "profileEditingPage"; // signup.html 템플릿을 가리킵니다.
     }
 
     /**

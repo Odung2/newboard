@@ -61,8 +61,8 @@ public class PostController extends BaseController{
     public ResponseEntity<ApiResponse<String>> insertPost(
             @RequestAttribute("reqId") int userNo,
             @RequestBody @Valid InsertPostParam insertPostParam,
-            @RequestParam("uploadFileMulti") ArrayList<MultipartFile> files, Model model) throws IOException {
-        return ok(postService.insertPost(insertPostParam, userNo, files, model));
+            @RequestParam(name="uploadFileMulti", required=false) ArrayList<MultipartFile> files) throws IOException {
+        return ok(postService.insertPost(insertPostParam, userNo, files));
     }
 
     /**

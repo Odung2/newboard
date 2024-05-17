@@ -87,7 +87,7 @@ public class PostService {
      * @param userNo              요청자의 id
      * @return 데이터베이스에 삽입된 게시물 객체
      */
-    public String insertPost(InsertPostParam insertPostParam, int userNo, ArrayList<MultipartFile> files, Model model) throws IOException {
+    public String insertPost(InsertPostParam insertPostParam, int userNo, ArrayList<MultipartFile> files) throws IOException {
         PostDTO post = new PostDTO();
         post.setTitle(insertPostParam.getTitle());
         post.setContents(insertPostParam.getContents());

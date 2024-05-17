@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,8 +50,8 @@
 </head>
 <body>
 <div class="container">
-    <h2>프로필 수정</h2>
-    <form action="http://localhost:8080/newboard/my-page" method="put">
+    <h2>프로필 보기</h2>
+    <form th:action="@{/newboard/my-page}" method="put">
         <input type="text" name="userId" placeholder="아이디" required>
         <input type="text" name="name" placeholder="이름 (한글만 입력)" required>
         <input type="email" name="email" placeholder="이메일" required>
@@ -60,16 +60,47 @@
         <input type="submit" value="수정하기">
 
     </form>
-    <form action="http://localhost:8080/newboard/my-page" method="delete">
+    <form th:action="@{/newboard/my-page}" method="delete">
         <input type="submit" value="회원 탈퇴">
     </form>
     <!-- FIXME : 회원가입 말고 내가 작성한 -->
-    <button id="signupButton">회원가입</button>
+<!--    <a href="http://localhost:8080/newboard/public/login"><button>로그인하기</button></a>-->
 </div>
     <script>
-        document.getElementById("signupButton").addEventListener("click", function() {
-            window.location.href = "signupForm.html";
-        });
+        // 페이지가 로드될 때 사용자 정보를 불러오는 함수
+        window.onload = function() {
+
+            var cookies = document.cookie.split(';');
+            var accessToken = null;
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith("accessToken=")) {
+                    accessToken = cookie.substring("accessToken=".length, cookie.length);
+                    console.log(accessToken);
+                    break;
+                }
+            }
+
+            // 헤더에 토큰 설정
+            var headers = new Headers();
+            headers.append('Authorization', 'Bearer ' + accessToken);
+
+            fetch('/newboard/my-page')
+                .then(response => response.json())
+                .then(data => {
+                    // 서버로부터 받은 데이터를 폼에 채워 넣기
+                    document.getElementById('userId').value = data.userId;
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('email').value = data.email;
+                    document.getElementById('phone').value = data.phone;
+                })
+                .catch(error => {
+                    console.error('사용자 정보를 불러오는 중 오류가 발생했습니다.', error);
+                });
+        };
+        // document.getElementById("signupButton").addEventListener("click", function() {
+        //     window.location.href = "signupForm.html";
+        // });
     </script>
 </body>
 </html>

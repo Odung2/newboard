@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,14 +51,18 @@
 <body>
 <div class="container">
     <h2>회원가입</h2>
-    <form id="signup-form">
+<!--    <form id="signup-form">-->
+    <form th:action="@{/newboard/public/sign-up}" method="post" id="signup-form">
+
         <input type="text" name="userId" placeholder="아이디 (2자 이상, 20자 이하)" required>
         <input type="text" name="name" placeholder="이름 (한글만 입력)" required>
         <input type="email" name="email" placeholder="이메일" required>
         <input type="tel" name="phone" placeholder="전화번호 (숫자만 입력)" required>
         <input type="password" name="password" placeholder="비밀번호 (8자 이상, 16자 이하, 대소문자/특수문자/숫자 포함)" required>
         <input type="submit" value="가입하기">
-    </form>
+    </form><br>
+    <a href="http://localhost:8080/newboard/public/login"><button>로그인하기</button></a>
+
 </div>
 
 <script>
@@ -73,7 +77,9 @@
         });
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:8080/newboard/public/sign-up", true);
+        xhr.open("POST", "[[@{http://localhost:8080/newboard/public/sign-up}]]", true);
+
+        // xhr.open("POST", "http://localhost:8080/newboard/public/sign-up", true);
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
         xhr.onreadystatechange = function() {
