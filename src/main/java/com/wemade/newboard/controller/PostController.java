@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class PostController extends BaseController{
      * @return 게시물 목록과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
-    @PostMapping("/posts/list")
+    @PostMapping("/public/posts/list")
     public ResponseEntity<ApiResponse<List<PublicPostRes>>> getPostAllByOffset(
             @RequestBody @Valid BasePagingParam basePagingParam) {
         return ok(postService.getPublicPostIntroAllByOffset(basePagingParam));
@@ -60,9 +61,8 @@ public class PostController extends BaseController{
     @PostMapping("/posts")
     public ResponseEntity<ApiResponse<String>> insertPost(
             @RequestAttribute("reqId") int userNo,
-            @RequestBody @Valid InsertPostParam insertPostParam,
-            @RequestParam(name="uploadFileMulti", required=false) ArrayList<MultipartFile> files) throws IOException {
-        return ok(postService.insertPost(insertPostParam, userNo, files));
+            MultipartHttpServletRequest request) throws IOException {
+        return ok(postService.insertPost(request, userNo));
     }
 
     /**

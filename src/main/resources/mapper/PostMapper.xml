@@ -27,12 +27,12 @@
     </select>
 
     <select id="getUserPosts" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.name, post.contents
+        SELECT post.post_no, post.title, user.name, post.contents, post.created_at
         FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 0
     </select>
 
     <select id="getUserTempPosts" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.name, post.contents
+        SELECT post.post_no, post.title, user.name, post.contents, post.created_at
         FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 1
     </select>
 

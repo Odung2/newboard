@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시물 상세보기</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom CSS */
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+        #postDetails {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .scrollable {
+             overflow-y: auto; /* 세로 스크롤이 필요한 경우만 스크롤바를 표시합니다. */
+             overflow-x: hidden; /* 가로 스크롤은 숨깁니다. */
+         }
+
+
+
+    </style>
+</head>
+<body>
+
+<!-- Modal -->
+<div class="modal fade" id="detailPostModal" tabindex="-1" role="dialog" aria-labelledby="detailPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailPostModalLabel">게시물 상세보기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="postDetails">
+                    <!-- 게시물 내용이 여기에 동적으로 삽입됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" id="openDetailPostModal" onclick="openDetailPostModal()">
+    게시물 상세보기
+</button>
+
+<script>
+    // 모달 팝업 열기
+    const openDetailPostModal = () => {
+        // 쿠키에서 access token 가져오기
+        const accessToken = getCookie('accessToken');
+
+        // AJAX 요청 헤더에 access token 포함하여 요청
+        fetch('http://localhost:8080/newboard/my-page/posts', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json()) // JSON 형식으로 응답을 파싱합니다.
+            .then(data => {
+                // 받아온 데이터를 HTML로 변환하여 표시합니다.
+                const postDetails = document.getElementById('postDetails');
+                postDetails.innerHTML = ''; // 기존 데이터를 비웁니다.
+                data.data.forEach(post => { // 데이터 배열을 순회합니다.
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
+
+                    const titleElement = document.createElement('div');
+                    titleElement.classList.add('post-title');
+                    titleElement.innerText = `게시물 제목: ${post.title}`;
+
+                    const detailsElement = document.createElement('div');
+                    detailsElement.classList.add('post-details');
+                    detailsElement.innerHTML = `
+                        <div class="post-attribute">게시물 번호: ${post.postNo}</div>
+                        <div class="post-attribute">작성자: ${post.name}</div>
+                        <div class="post-attribute">내용: ${post.contents}</div>
+                        <div class="post-attribute">작성일: ${post.created_at}</div>
+                    `;
+
+                    postElement.appendChild(titleElement);
+                    postElement.appendChild(detailsElement);
+
+                    postDetails.appendChild(postElement);
+                });
+                postDetails.classList.add('scrollable');
+
+                // 모달 열기
+                document.getElementById('detailPostModal').classList.add('show');
+                document.getElementById('detailPostModal').style.display = 'block';
+            })
+
+
+                .catch(error => {
+                console.error('Error:', error);
+            });
+    };
+
+    // 쿠키에서 특정 이름의 쿠키 값 가져오기
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // 쿠키 이름과 일치하는지 확인
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
+
+</body>
+</html>

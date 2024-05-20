@@ -4,6 +4,7 @@ import com.wemade.newboard.dto.PostDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Data
 public class DetailPostRes {
@@ -14,12 +15,14 @@ public class DetailPostRes {
     private String title;
     @Schema(description = "사용자 이름")
     private String name;
-    @Schema(description = "조회수")
-    private int views;
+//    @Schema(description = "조회수")
+//    private int views;
     @Schema(description = "내용")
     private String contents;
     @Schema(description = "파일 데이터")
-    private byte[] fileData;
+    private String[] fileData;
+    @Schema(description = "작성일")
+    private LocalDateTime created_at;
 //    @Schema(description = "댓글 리스트")
 //    private List<CommentRes> comments;
 //

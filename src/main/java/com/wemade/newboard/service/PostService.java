@@ -16,6 +16,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.webjars.NotFoundException;
 
 import java.io.File;
@@ -87,18 +88,61 @@ public class PostService {
      * @param userNo              요청자의 id
      * @return 데이터베이스에 삽입된 게시물 객체
      */
-    public String insertPost(InsertPostParam insertPostParam, int userNo, ArrayList<MultipartFile> files) throws IOException {
+//    public String insertPost(InsertPostParam insertPostParam, int userNo, ArrayList<MultipartFile> files) throws IOException {
+//        PostDTO post = new PostDTO();
+//        post.setTitle(insertPostParam.getTitle());
+//        post.setContents(insertPostParam.getContents());
+//        post.setUserNo(userNo);
+//        post.setIsTemp(insertPostParam.isTemp());
+//        postMapper.insert(post);
+//
+//        int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, insertPostParam.getTitle());
+//        if(files != null) {
+//            validateFiles(files); // 파일 유효성 검사
+//            uploadFiles(postNo, userNo, insertPostParam.isTemp(), files);
+//        }
+//
+//        return post.getTitle();
+//    }
+    public String insertPost(MultipartHttpServletRequest request, int userNo) throws IOException {
         PostDTO post = new PostDTO();
-        post.setTitle(insertPostParam.getTitle());
-        post.setContents(insertPostParam.getContents());
+        post.setTitle(request.getParameter("title"));
+        post.setContents(request.getParameter("contents"));
         post.setUserNo(userNo);
-        post.setIsTemp(insertPostParam.isTemp());
+
+        post.setIsTemp(Boolean.valueOf(request.getParameter("isTemp")));
         postMapper.insert(post);
 
-        int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, insertPostParam.getTitle());
+        int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, request.getParameter("title"));
+
+//        // 파일을 받기 위해 MultipartHttpServletRequest 객체 사용
+//        Map<String, MultipartFile> fileMap = request.getFileMap();
+//        for (Map.Entry<String, MultipartFile> entry : fileMap.entrySet()) {
+//            MultipartFile file = entry.getValue();
+//            // 파일 처리 로직 작성
+//            // 파일 이름, 크기 등을 이용하여 필요한 작업 수행
+//            validateFiles(files); // 파일 유효성 검사
+//
+//            System.out.println("업로드한 파일 이름: " + file.getOriginalFilename());
+//        }
+
+        ArrayList<MultipartFile> files = new ArrayList<>();
+        Iterator<String> fileNames = request.getFileNames(); // Iterator로 파일 이름을 가져옴
+        while (fileNames.hasNext()) { // Iterator를 사용하여 순회
+            String fileName = fileNames.next();
+            MultipartFile file = request.getFile(fileName);
+            // 파일 처리 로직 작성
+            // 파일 이름, 크기 등을 이용하여 필요한 작업 수행
+            System.out.println("업로드한 파일 이름: " + file.getOriginalFilename());
+            files.add(file); // ArrayList에 파일 추가
+        }
+
+
+
+
         if(files != null) {
             validateFiles(files); // 파일 유효성 검사
-            uploadFiles(postNo, userNo, insertPostParam.isTemp(), files);
+            uploadFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
         }
 
         return post.getTitle();

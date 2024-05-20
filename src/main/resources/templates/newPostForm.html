@@ -71,13 +71,14 @@
         <input type="text" id="title" name="title" required><br>
 
         <!-- 파일 업로드 -->
-        <!--        <label for="uploadFileMulti">첨부 파일:</label><br>-->
+        <label for="uploadFileMulti">첨부 파일:</label><br>
         <input type="file" name="uploadFileMulti" id="uploadFileMulti" multiple><br><br>
 
-        <label for="contents">본문:</label><br>
+        <label for="contents">내용:</label><br>
         <textarea id="contents" name="contents" rows="4" required></textarea><br>
 
-        <input type="checkbox" id="isTemp" name="isTemp">
+<!--        <input type="hidden" name="isTemp" value="0">-->
+        <input type="checkbox" id="isTemp" name="isTemp" value="1">
         <label for="isTemp">임시 저장</label><br><br>
 
 
@@ -90,20 +91,27 @@
             event.preventDefault(); // 기본 submit 동작을 막습니다.
 
             var formData = new FormData(this); // 폼 데이터를 가져옵니다.
-
+            console.log(formData);
             var jsonObject = {};
             formData.forEach(function(value, key){
+                console.log(value);
+                console.log(key);
                 jsonObject[key] = value;
             });
 
-            // 사용자로부터 JWT 토큰을 입력받습니다.
-            var token = prompt("JWT 토큰을 입력하세요:");
-
+            var cookies = document.cookie.split(';');
+            var accessToken = null;
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith("accessToken=")) {
+                    accessToken = cookie.substring("accessToken=".length, cookie.length);
+                    // console.log(accessToken);
+                    break;
+                }
+            }
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "http://localhost:8080/newboard/posts", true);
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -123,7 +131,7 @@
                 }
             };
 
-            xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+            xhr.send(formData); // JSON 형식으로 데이터를 서버로 전송합니다.
         });
 
         function validateForm() {
