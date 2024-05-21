@@ -7,18 +7,31 @@
     <style>
         /* 기본 스타일 */
         body { font-family: sans-serif; }
-        table { border-collapse: collapse; width: 100%; }
+        #content { width: 80%; margin: 0 auto; } /* 내용 전체를 가운데 정렬 */
+        table { border-collapse: collapse; width: 80%; margin: 0 auto; } /* 게시글 목록의 가로 길이를 조정하고 가운데 정렬 */
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { text-align: left; background-color: #f0f0f0; }
         /* 검색창 스타일 */
-        #search-box { width: 200px; margin: 10px auto; }
-        .search-btn {
-            margin-left: 10px;
-            padding: 5px 10px;
+        #search-container {
+            text-align: center; /* 검색창과 검색 버튼을 가운데 정렬하기 위해 텍스트를 가운데 정렬 */
+            margin-bottom: 20px; /* 검색창과 게시글 목록 사이 간격 조정 */
+        }
+        #search-box {
+            width: 300px; /* 검색창의 너비를 늘림 */
+            display: inline-block; /* 검색창을 인라인 블록 요소로 변경하여 가운데 정렬 */
+            vertical-align: middle; /* 세로 가운데 정렬 */
+            padding: 8px; /* 검색창의 패딩을 조정 */
+            box-sizing: border-box; /* 패딩과 경계 상자를 포함하여 너비를 계산 */
+        }
+        #search-btn {
+            width: 60px; /* 검색 버튼의 너비를 조정 */
+            padding: 8px 0; /* 검색 버튼의 패딩을 조정 */
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+            margin-left: 5px; /* 검색 버튼과 검색창 사이의 간격을 조정 */
+            vertical-align: middle; /* 세로 가운데 정렬 */
         }
         /* 페이지 버튼 스타일 */
         .pagination { display: flex; justify-content: center; margin-top: 20px; }
@@ -26,45 +39,69 @@
         .pagination a { text-decoration: none; padding: 5px 10px; border: 1px solid #ddd; }
         .pagination .active { background-color: #ccc; }
     </style>
+
 </head>
 <body>
-<h1>게시글 목록</h1>
+<div id="content">
 
-<div class="search-container">
-    <input type="text" id="search-box" placeholder="검색어를 입력하세요">
-    <button class="search-btn">검색</button>
+
+    <h1>게시글 목록</h1>
+
+    <div id="search-container">
+        <input type="text" id="search-box" placeholder="검색어를 입력하세요">
+        <button id="search-btn">검색</button>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>등록날짜</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <ul class="pagination">
+        <li><a href="#" id="first">&lt;&lt;</a></li>
+        <li><a href="#" id="prev">&lt;</a></li>
+        <li><a href="#" class="page">1</a></li>
+        <!-- 나머지 페이지 버튼은 JavaScript로 생성됩니다. -->
+        <li><a href="#" id="next">&gt;</a></li>
+        <li><a href="#" id="last">&gt;&gt;</a></li>
+    </ul>
 </div>
-
-<table>
-    <thead>
-    <tr>
-        <th>번호</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>등록날짜</th>
-    </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
-
-<ul class="pagination">
-    <li><a href="#" id="first">&lt;&lt;</a></li>
-    <li><a href="#" id="prev">&lt;</a></li>
-    <li><a href="#" class="page">1</a></li>
-    <!-- 나머지 페이지 버튼은 JavaScript로 생성됩니다. -->
-    <li><a href="#" id="next">&gt;</a></li>
-    <li><a href="#" id="last">&gt;&gt;</a></li>
-</ul>
 
 <script>
     // const postsPerPage = 3; // 페이지당 게시글 수
     let currentPage = 1; // 현재 페이지 번호
+    let searchKeyword ='';
+    const searchButton = document.getElementById('search-btn');
+    // 검색 버튼 클릭 이벤트 리스너 등록
+    searchButton.addEventListener('click', () => {
+        // 검색어 가져오기
+        searchKeyword = document.getElementById('search-box').value;
 
+        // 검색어가 비어있지 않은 경우에만 backend와 통신하여 검색 결과 가져오기
+        if (searchKeyword.trim() !== '') {
+            currentPage = 1; // 검색할 때 페이지를 초기화
+            searchPosts();
+        }
+    });
     // 페이지 이동 처리
     function goToPage(page) {
         currentPage = page;
-        fetchPosts();
+        if(searchKeyword){
+
+            searchPosts();
+        }else {
+            console.log('no searchKeyword');
+            fetchPosts();
+        }
+        updateURL();
     }
     function getCookie(name) {
         var cookieValue = null;
@@ -82,9 +119,43 @@
         return cookieValue;
     }
 
+    function searchPosts() {
+        const accessToken=getCookie('accessToken');
+        // 검색 키워드를 이용하여 backend와 통신하는 코드 작성
+        fetch(`http://localhost:8080/newboard/posts/list/${searchKeyword}`, {
+            method: 'POST', // 예시로 POST 메서드 사용
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                currPage: currentPage
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.resultCode !== 0) {
+                    let errorMessage = data.resultMessage;
+                    if (data.data && data.data.message) {
+                        errorMessage += "\n" + data.data.message;
+                    } else if (data.data) {
+                        errorMessage += "\n" + data.data;
+                    }
+                    alert(errorMessage);
+                } else {
+                    displayPosts(data.data);
+                    updatePagination();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
     // 게시물 가져오기
     function fetchPosts() {
-
         const accessToken=getCookie('accessToken');
         fetch(`http://localhost:8080/newboard/posts/list`, {
             method: 'POST',
@@ -96,37 +167,33 @@
                 currPage: currentPage
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.resultCode !== 0) {
-                let errorMessage = data.resultMessage;
-                if (data.data && data.data.message) {
-                    errorMessage += "\n" + data.data.message;
-                } else if (data.data) {
-                    errorMessage += "\n" + data.data;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-                alert(errorMessage);
-            } else {
-                displayPosts(data.data);
-                updatePagination();
-                // let successMessage = data.resultMessage +"\n"+ data.data;
-                // alert(successMessage);
-            }
-
-        })
-        .catch(error => console.error('Error:', error));
+                return response.json();
+            })
+            .then(data => {
+                if (data.resultCode !== 0) {
+                    let errorMessage = data.resultMessage;
+                    if (data.data && data.data.message) {
+                        errorMessage += "\n" + data.data.message;
+                    } else if (data.data) {
+                        errorMessage += "\n" + data.data;
+                    }
+                    alert(errorMessage);
+                } else {
+                    displayPosts(data.data);
+                    updatePagination();
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
     // 게시글 목록 표시
     function displayPosts(posts) {
         const tbody = document.querySelector('tbody');
         tbody.innerHTML = ''; // 이전 게시물 지우기
-
         posts.forEach(post => {
             const row = `<tr>
             <td>${post.postNo}</td>
@@ -139,43 +206,9 @@
     }
 
     // 페이지 버튼 생성
-    // function updatePagination() {
-    //     const pagination = document.querySelector('.pagination');
-    //     pagination.innerHTML = ''; // 기존 버튼 지우기
-    //
-    //     // 이전 페이지 버튼
-    //     const prevButton = document.createElement('li');
-    //     prevButton.innerHTML = `<a href="#" id="prev">&lt;</a>`;
-    //     prevButton.addEventListener('click', () => {
-    //         goToPage(currentPage - 1);
-    //     });
-    //     pagination.appendChild(prevButton);
-    //
-    //     // 페이지 번호 버튼
-    //     for (let i = 1; i <= 10; i++) {
-    //         const pageButton = document.createElement('li');
-    //         pageButton.innerHTML = `<a href="#" class="page">${i}</a>`;
-    //         pageButton.addEventListener('click', () => {
-    //             goToPage(i);
-    //         });
-    //         pagination.appendChild(pageButton);
-    //     }
-    //
-    //     // 다음 페이지 버튼
-    //     const nextButton = document.createElement('li');
-    //     nextButton.innerHTML = `<a href="#" id="next">&gt;</a>`;
-    //     nextButton.addEventListener('click', () => {
-    //         goToPage(currentPage + 1);
-    //     });
-    //     pagination.appendChild(nextButton);
-    // }
-
-
-    // 초    // 페이지 버튼 생성
     function updatePagination() {
         const pagination = document.querySelector('.pagination');
         pagination.innerHTML = ''; // 기존 버튼 지우기
-
         // 현재 페이지가 1페이지인 경우 이전 버튼은 비활성화
         if (currentPage === 1) {
             pagination.innerHTML += `<li><span>&lt;&lt;</span></li>`;
@@ -184,7 +217,6 @@
             pagination.innerHTML += `<li><a href="#" id="first">&lt;&lt;</li>`;
             pagination.innerHTML += `<li><a href="#" id="prev">&lt;</a></li>`;
         }
-
         // 페이지 버튼 표시 (최대 10 페이지)
         for (let i = Math.max(1, currentPage - 4); i <= Math.min(currentPage + 5, 10); i++) {
             if (i === currentPage) {
@@ -193,7 +225,6 @@
                 pagination.innerHTML += `<li><a href="#" class="page">${i}</a></li>`;
             }
         }
-
         // 현재 페이지가 10페이지인 경우 다음 버튼은 비활성화
         if (currentPage === 10) {
             pagination.innerHTML += `<li><span>&gt;</span></li>`;
@@ -221,6 +252,22 @@
             }
         }
     });
+    function updateURL() {
+        const url = new URL(window.location);
+        url.searchParams.set('keyword', searchKeyword);
+        history.pushState(null, '', url);
+    }
+
+    // // 초기 페이지 로드 시 검색어가 있으면 해당 검색어로 검색을 수행
+    // window.onload = () => {
+    //     const urlParams = new URLSearchParams(window.location.search);
+    //     const keyword = urlParams.get('keyword');
+    //     if (keyword) {
+    //         searchKeyword = keyword;
+    //         document.getElementById('search-box').value = keyword;
+    //     }
+    //     goToPage(1);
+    // };
     goToPage(1);
 </script>
 </body>
