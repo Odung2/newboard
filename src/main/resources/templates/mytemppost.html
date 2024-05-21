@@ -56,7 +56,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="detailPostModalLabel">게시물 상세보기</h5>
+                <h5 class="modal-title" id="detailPostModalLabel">임시 게시물 상세보기</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -74,7 +74,7 @@
 </div>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" id="openDetailPostModal" onclick="openDetailPostModal()">내가 작성한 글</button>
+<button type="button" class="btn btn-primary" id="openDetailPostModal" onclick="openDetailPostModal()">임시 저장글</button>
 
 <script>
     // 모달 팝업 열기
@@ -83,7 +83,7 @@
         const accessToken = getCookie('accessToken');
 
         // AJAX 요청 헤더에 access token 포함하여 요청
-        fetch('http://localhost:8080/newboard/my-page/posts', {
+        fetch('http://localhost:8080/newboard/my-page/temp-posts', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`

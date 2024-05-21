@@ -22,7 +22,7 @@ public class DetailPostRes {
     @Schema(description = "파일 데이터")
     private String[] fileData;
     @Schema(description = "작성일")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 //    @Schema(description = "댓글 리스트")
 //    private List<CommentRes> comments;
 //

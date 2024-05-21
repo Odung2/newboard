@@ -7,15 +7,12 @@ import com.wemade.newboard.exception.InvalidFileException;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
 import com.wemade.newboard.mapper.PostMapper;
 import com.wemade.newboard.param.BasePagingParam;
-import com.wemade.newboard.param.InsertPostParam;
 import com.wemade.newboard.param.UpdatePostParam;
 import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.PublicPostRes;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -81,8 +78,7 @@ public class PostService {
         post.setTitle(request.getParameter("title"));
         post.setContents(request.getParameter("contents"));
         post.setUserNo(userNo);
-
-        post.setIsTemp(Boolean.valueOf(request.getParameter("isTemp")));
+        post.setTemp(request.getParameter("isTemp"));
         postMapper.insert(post);
 
         int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, request.getParameter("title"));
@@ -93,21 +89,31 @@ public class PostService {
         for (List<MultipartFile> fileList : multipartFiles.values()) {
             files.addAll(fileList);
         }
-
-        if(files != null) {
+        if(hasFiles(files)){
             validateFiles(files); // 파일 유효성 검사
             uploadFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
         }
-
         return post.getTitle();
     }
 
+    private boolean hasFiles(ArrayList<MultipartFile> files){
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void validateFiles(ArrayList<MultipartFile> files) {
+
         long maxTotalFileSize = 20 * 1024 * 1024; // 20MB
         long totalFileSize = 0;
         int fileCount = 0;
 
         for(MultipartFile file : files) {
+            if(file.isEmpty()) break;
+
             long fileSize = file.getSize();
 
             // 파일 크기 검사

@@ -48,18 +48,8 @@ public class AuthService {
 
         // DB에 저장된 유저 정보 존재 확인
         UserDTO user = userService.getUser(loginParam.getUserId());
-//        // 로그인 시도 제한 확인
-//        validateLoginAttempts(user);
-        // 비밀번호 확인 - 실제 로그인
         validatePassword(user, loginParam.getPassword());
-//        // 계정 잠금 확인
-//        validateUserLocked(user);
-//        // 로그인 1개월 이상 지났는지 -> 지났다면 계정 잠금
-//        validateLastLogin(user);
-        // 토큰s 발급
         TokensDTO issueTokens = issueTokens(user);
-//        // 3개월 이상 비번 변경 x -> 비번 변경 에러 + 토큰s 발급
-//        validateLastPwUpdate(user, issueTokens);
 
         return issueTokens;
     }
@@ -74,14 +64,8 @@ public class AuthService {
     public void validatePassword(UserDTO user, String loginPassword) throws CredentialException, NoSuchAlgorithmException {
         String hashedPassword = userService.plainToSha256(loginPassword);
         if (!user.getPassword().equals(hashedPassword)) {
-//            int failCount = userService.addLoginFailCount(user); // 로그인 실패 횟수 +1
-//            if(failCount>=5){ // 로그인 실패횟수가 5회 이상
-//                userService.updateLoginLock(user); // loginLock 시간 update
-//            }
             throw new CredentialException("비밀번호가 일치하지 않습니다.");
         }
-//        // 로그인 성공, 로그인 실패 횟수 및 로그인 락 해제
-//        userService.resetLoginFailCountAndLoginLocked(user);
     }
 
     /**
@@ -99,61 +83,6 @@ public class AuthService {
 
         return issuedTokens;
     }
-//
-//    /**
-//     * 유저의 마지막 비밀번호 업데이트 기간 확인, 3개월 이상 시 예외 처리
-//     * @param user
-//     * @param issueTokens // 비밀번호 업데이트 하라는 메시지와 함께 access token 전달 필요
-//     * @throws LastPwException // 3개월 이상 비번 변경 안 했을 시 예외 처리
-//     */
-//    public void validateLastPwUpdate(UserDTO user, TokensDTO issueTokens) throws LastPwException {
-//        //마지막 비번 변경 확인
-//
-//        long lastPwUpdatedFromToday = Duration.between(LocalDateTime.now(), user.getPwUpdatedAt()).toDays();
-//        // 3개월 이상 비번 변경 x
-//        if(lastPwUpdatedFromToday > 3*month ) throw new LastPwException(String.valueOf(issueTokens));
-//    }
-//
-//    /**
-//     * 유저 계정이 잠금 상태인지 확인, 잠금 상태라면 예외 처리
-//     * @param user
-//     * @throws UserIsLockedException // 관리자에게 문의하라는 예외 처리
-//     */
-//    public void validateUserLocked(UserDTO user) throws UserIsLockedException {
-//        if(user.getIsLocked()==lockUser) throw new UserIsLockedException();
-//    }
-//
-//    /**
-//     * (로그인 실패가 5회 이상) && (마지막 시도로부터 5분 미만)이면 로그인할 수 없게 예외 처리
-//     * @param user
-//     * @throws LoginLockException
-//     */
-//    public void validateLoginAttempts(UserDTO user) throws LoginLockException {
-//        Date currentDate = new Date();
-//        //login 제한이 걸려있는지, 5번 이상 로그인 실패 했는지 확인
-//        if(user.getLoginLockedAt() != null && user.getLoginFailCount() >= 5){
-//            // login 제한이 걸린 시각으로부터 현재 시각까지의 차이를 구함
-//            long lastLoginLockFromNow =  Duration.between(LocalDateTime.now(), user.getLoginLockedAt()).toMinutes();
-//            // 로그인 제한은 5분이므로 5분보다 짧으면 Login을 할 수 없게 LoginLockException을 던짐
-//            if(lastLoginLockFromNow<5) throw new LoginLockException();
-//            //만약 5분이 지났다면 로그인 시도 제한은 풀림
-//        }
-//    }
-//
-//    /**
-//     * 마지막 로그인으로부터 1개월 이상 접속 하지 않은 경우, 계정을 잠금 (휴면 계정), 관리자에게 문의해서 잠금을 해제해야 함
-//     * @param user
-//     * @throws LastLoginException
-//     */
-//    public void validateLastLogin(UserDTO user) throws LastLoginException {
-//        Date currentDate = new Date();
-//        // 마지막 로그인으로부터 현재 로그인한 날짜 차이를 계산
-//        long lastLoginFromToday =  Duration.between(LocalDateTime.now(), user.getLastLoginAt()).toDays();
-//        if(lastLoginFromToday > month) {  // 1개월 이상 접속(로그인) 하지 않은 경우, 계정을 잠그고, 로그인을 못 하게 함.
-//            userService.lockUnlockUser(user.getId(), lockUser);
-//            throw new LastLoginException();
-//        }
-//    }
 
 
     /**

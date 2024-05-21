@@ -24,5 +24,17 @@ public class PostDTO extends BaseDTO{
     @Schema(description = "임시 저장 여부")
     private Boolean isTemp;
 
+    public void setTemp(String param){
+        if(param.equals("1")){
+            this.setIsTemp(true);
+        }else{
+            this.setIsTemp(false);
+        }
+    }
+
+    public void setTemp(boolean param){
+        this.setIsTemp(param);
+    }
+
 
 }
