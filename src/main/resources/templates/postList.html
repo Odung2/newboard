@@ -35,7 +35,6 @@
     <button class="search-btn">검색</button>
 </div>
 
-
 <table>
     <thead>
     <tr>
@@ -50,63 +49,179 @@
 </table>
 
 <ul class="pagination">
+    <li><a href="#" id="first">&lt;&lt;</a></li>
+    <li><a href="#" id="prev">&lt;</a></li>
+    <li><a href="#" class="page">1</a></li>
+    <!-- 나머지 페이지 버튼은 JavaScript로 생성됩니다. -->
+    <li><a href="#" id="next">&gt;</a></li>
+    <li><a href="#" id="last">&gt;&gt;</a></li>
 </ul>
 
 <script>
-    // 게시글 목록 불러오기 (샘플 데이터)
-    const sampleData = [
-        { postNo: 1, title: "제목1", name: "작성자1", created_at: "2024-05-20" },
-        { postNo: 2, title: "제목2", name: "작성자2", created_at: "2024-05-19" },
-        { postNo: 3, title: "제목3", name: "작성자3", created_at: "2024-05-18" },
-        // ... 더 많은 게시글 데이터
-    ];
+    // const postsPerPage = 3; // 페이지당 게시글 수
+    let currentPage = 1; // 현재 페이지 번호
+
+    // 페이지 이동 처리
+    function goToPage(page) {
+        currentPage = page;
+        fetchPosts();
+    }
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // 쿠키 이름과 일치하는지 확인
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // 게시물 가져오기
+    function fetchPosts() {
+
+        const accessToken=getCookie('accessToken');
+        fetch(`http://localhost:8080/newboard/posts/list`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                currPage: currentPage
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.resultCode !== 0) {
+                let errorMessage = data.resultMessage;
+                if (data.data && data.data.message) {
+                    errorMessage += "\n" + data.data.message;
+                } else if (data.data) {
+                    errorMessage += "\n" + data.data;
+                }
+                alert(errorMessage);
+            } else {
+                displayPosts(data.data);
+                updatePagination();
+                // let successMessage = data.resultMessage +"\n"+ data.data;
+                // alert(successMessage);
+            }
+
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
     // 게시글 목록 표시
-    function displayPosts(data) {
+    function displayPosts(posts) {
         const tbody = document.querySelector('tbody');
-        tbody.innerHTML = ''; // 기존 목록 지우기
+        tbody.innerHTML = ''; // 이전 게시물 지우기
 
-        data.forEach(post => {
+        posts.forEach(post => {
             const row = `<tr>
-          <td>${post.postNo}</td>
-          <td><a href="/post/${post.postNo}">${post.title}</a></td>
-          <td>${post.name}</td>
-          <td>${post.created_at}</td>
+            <td>${post.postNo}</td>
+            <td><a href="/post/${post.postNo}">${post.title}</a></td>
+            <td>${post.name}</td>
+            <td>${post.createdAt}</td>
         </tr>`;
-            tbody.insertAdjacentHTML('beforeEnd', row);
+            tbody.insertAdjacentHTML('beforeend', row);
         });
     }
 
     // 페이지 버튼 생성
-    function createPagination(totalPages) {
+    // function updatePagination() {
+    //     const pagination = document.querySelector('.pagination');
+    //     pagination.innerHTML = ''; // 기존 버튼 지우기
+    //
+    //     // 이전 페이지 버튼
+    //     const prevButton = document.createElement('li');
+    //     prevButton.innerHTML = `<a href="#" id="prev">&lt;</a>`;
+    //     prevButton.addEventListener('click', () => {
+    //         goToPage(currentPage - 1);
+    //     });
+    //     pagination.appendChild(prevButton);
+    //
+    //     // 페이지 번호 버튼
+    //     for (let i = 1; i <= 10; i++) {
+    //         const pageButton = document.createElement('li');
+    //         pageButton.innerHTML = `<a href="#" class="page">${i}</a>`;
+    //         pageButton.addEventListener('click', () => {
+    //             goToPage(i);
+    //         });
+    //         pagination.appendChild(pageButton);
+    //     }
+    //
+    //     // 다음 페이지 버튼
+    //     const nextButton = document.createElement('li');
+    //     nextButton.innerHTML = `<a href="#" id="next">&gt;</a>`;
+    //     nextButton.addEventListener('click', () => {
+    //         goToPage(currentPage + 1);
+    //     });
+    //     pagination.appendChild(nextButton);
+    // }
+
+
+    // 초    // 페이지 버튼 생성
+    function updatePagination() {
         const pagination = document.querySelector('.pagination');
         pagination.innerHTML = ''; // 기존 버튼 지우기
-        //
-        // const button1 = document.createElement('li');
-        // const link1 = document.createElement('a');
-        // link.textContent = "<<";
-        // button.appendChild(link);
-        // pagination.appendChild(button);
-        //
-        // const button2 = document.createElement('li');
-        // const link2 = document.createElement('a');
-        // link.textContent = "<";
-        // button.appendChild(link);
-        // pagination.appendChild(button);
 
-        for (let i = 1; i <= totalPages; i++) {
-            const button = document.createElement('li');
-            const link = document.createElement('a');
-            link.textContent = i;
-            link.href = `#`; // 페이지 번호 클릭 시 처리 추가 필요
-            button.appendChild(link);
-            pagination.appendChild(button);
+        // 현재 페이지가 1페이지인 경우 이전 버튼은 비활성화
+        if (currentPage === 1) {
+            pagination.innerHTML += `<li><span>&lt;&lt;</span></li>`;
+            pagination.innerHTML += `<li><span>&lt;</span></li>`;
+        } else {
+            pagination.innerHTML += `<li><a href="#" id="first">&lt;&lt;</li>`;
+            pagination.innerHTML += `<li><a href="#" id="prev">&lt;</a></li>`;
+        }
+
+        // 페이지 버튼 표시 (최대 10 페이지)
+        for (let i = Math.max(1, currentPage - 4); i <= Math.min(currentPage + 5, 10); i++) {
+            if (i === currentPage) {
+                pagination.innerHTML += `<li><a href="#" class="page active">${i}</a></li>`;
+            } else {
+                pagination.innerHTML += `<li><a href="#" class="page">${i}</a></li>`;
+            }
+        }
+
+        // 현재 페이지가 10페이지인 경우 다음 버튼은 비활성화
+        if (currentPage === 10) {
+            pagination.innerHTML += `<li><span>&gt;</span></li>`;
+            pagination.innerHTML += `<li><span>&gt;&gt;</span></li>`;
+        } else {
+            pagination.innerHTML += `<li><a href="#" id="next">&gt;</a></li>`;
+            pagination.innerHTML += `<li><a href="#" id="last">&gt;&gt;</a></li>`;
         }
     }
 
-    // 초기 화면 로딩
-    displayPosts(sampleData);
-    createPagination(10); // 총 페이지 수 (수정 필요)
+    // 이벤트 리스너 등록
+    document.querySelector('.pagination').addEventListener('click', (e) => {
+        e.preventDefault();
+        if (e.target.tagName === 'A' && !e.target.classList.contains('active')) {
+            if (e.target.id === 'prev') {
+                goToPage(currentPage - 1);
+            } else if (e.target.id === 'next') {
+                goToPage(currentPage + 1);
+            } else if (e.target.id === 'first') {
+                goToPage(1);
+            } else if (e.target.id === 'last') {
+                goToPage(10);
+            }else {
+                goToPage(parseInt(e.target.textContent));
+            }
+        }
+    });
+    goToPage(1);
 </script>
 </body>
 </html>

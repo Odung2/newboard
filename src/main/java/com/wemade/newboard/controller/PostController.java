@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
+//@RestController
+@Controller
 @RequestMapping("/newboard")
 @RequiredArgsConstructor
 public class PostController extends BaseController{
@@ -35,10 +37,16 @@ public class PostController extends BaseController{
      * @return 게시물 목록과 상태 메시지를 담은 ResponseEntity
      */
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
-    @PostMapping("/public/posts/list")
+    @PostMapping("/posts/list")
     public ResponseEntity<ApiResponse<List<PublicPostRes>>> getPostAllByOffset(
             @RequestBody @Valid BasePagingParam basePagingParam) {
         return ok(postService.getPublicPostIntroAllByOffset(basePagingParam));
+    }
+
+    @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
+    @GetMapping("/public/posts/list")
+    public String showPostListPage() {
+        return "postList";
     }
 
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
