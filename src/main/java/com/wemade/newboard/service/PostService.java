@@ -141,7 +141,6 @@ public class PostService {
         if (hasFiles(files)) {
             validateAndSaveFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
         }
-
         return post.getTitle();
     }
 
