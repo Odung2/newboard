@@ -7,9 +7,7 @@ import com.wemade.newboard.mapper.UserMapper;
 import com.wemade.newboard.param.FindPasswordParam;
 import com.wemade.newboard.param.SignupParam;
 import com.wemade.newboard.param.UpdateUserParam;
-import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.MyInfoRes;
-import com.wemade.newboard.response.PublicUserInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -18,12 +16,8 @@ import org.webjars.NotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.wemade.newboard.dto.FrkConstants.findByEmail;
-import static com.wemade.newboard.dto.FrkConstants.findByUserId;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +25,10 @@ public class UserService {
     private final UserMapper userMapper;
 
     /**
-     * DB에 저장된 유저 정보가 존재하는지 확인하고, 유저 정보를 반환
-     * @param userNo 또는 userId
-     * @return user
-     * @throws NotFoundException // 유저 정보가 존재하지 않음.
+     * 유저 정보
+      * @param userId
+     * @return
      */
-
     public UserDTO getUser(String userId) {
         UserDTO user = userMapper.getUserByUserId(userId);
         if (user == null) {
@@ -45,6 +37,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 유저 정보
+     * @param userNo
+     * @return
+     */
     public UserDTO getUser(int userNo) {
         UserDTO user = userMapper.getUserByUserNo(userNo);
         if (user == null) {
@@ -53,6 +50,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 유저 정보
+     * @param email
+     * @return
+     */
     public UserDTO getUserByEmail(String email) {
         UserDTO user = userMapper.getUserByEmail(email);
         if (user == null) {
@@ -61,6 +63,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 새로운 비밀번호 발급(비밀번호 찾기)
+     * @param findPasswordParam
+     * @return
+     */
     public String findPassword(FindPasswordParam findPasswordParam) {
         if( !(findPasswordParam.getEmail().equals(userMapper.getEmail(findPasswordParam.getUserId())))){
             throw new NotFoundException("해당되는 이메일이 아닙니다.");
@@ -73,7 +80,6 @@ public class UserService {
 
     /**
      * 새로운 사용자를 데이터베이스에 삽입합니다.
-     *
      * @param signupParam 사용자 정보
      * @return 삽입된 사용자 정보
      * @throws Exception 비밀번호 검증 실패 시 예외 발생
@@ -83,7 +89,6 @@ public class UserService {
         checkDuplicateEmail(signupParam.getEmail());
         checkNewPwValid(signupParam.getPassword());
         signupParam.setPassword(plainToSha256(signupParam.getPassword()));
-        //FIXME: userDTO에 옮겨 심는게 아니라 그냥 signup param 그대로 넣어도 문제 없지 않나?
         userMapper.insert(signupParam);
         return signupParam.getName();
     }
@@ -91,7 +96,6 @@ public class UserService {
 
     /**
      * 주어진 ID의 사용자 정보를 업데이트합니다.
-     *
      * @param updateUserParam 사용자 정보
      * @param userNo          사용자 ID
      * @return 업데이트된 사용자 정보
@@ -105,7 +109,6 @@ public class UserService {
         }
 
         UserDTO user = new UserDTO(updateUserParam, userNo);
-
         userMapper.update(user);
         return user.getName();
     }
@@ -120,6 +123,11 @@ public class UserService {
         getUser(userNo);
         return userMapper.delete(userNo);
     }
+
+    /**
+     * 중복 유저 확인
+     * @param userId
+     */
     public void checkDuplicateUser(String userId){
         try {
             getUser(userId);
@@ -129,6 +137,10 @@ public class UserService {
         throw new DuplicateKeyException("중복된 아이디입니다. 다른 아이디를 입력해주세요.");
     }
 
+    /**
+     * 중복 이메일 확인
+     * @param email
+     */
     public void checkDuplicateEmail(String email){
         try{
             getUserByEmail(email);
@@ -176,10 +188,15 @@ public class UserService {
         throw new PasswordRegexException("비밀번호는 12자 미만의 경우 영문 대문자, 소문자, 숫자, 특수문자의 조합으로, 12자 이상인 경우 영문, 숫자, 특수문자의 조합으로 입력해주세요.");
     }
 
-    public PublicUserInfoRes getPublicUser(int userNo){
-        return new PublicUserInfoRes(getUser(userNo));
-    }
+//    public PublicUserInfoRes getPublicUser(int userNo){
+//        return new PublicUserInfoRes(getUser(userNo));
+//    }
 
+    /**
+     * 개인정보 조회
+     * @param userNo
+     * @return
+     */
     public MyInfoRes getPrivateUser(int userNo){
         return new MyInfoRes(getUser(userNo));
     }

@@ -75,26 +75,6 @@ public class GlobalExceptionHandler extends BaseController {
         return nok(403, e.getMessage(), null);
     }
 
-    @ExceptionHandler(LoginLockException.class)
-    public ResponseEntity<ApiResponse<Object>> handleLoginLockException(LoginLockException e){
-        return nok(403, "5회 이상 로그인 실패 시 로그인 시도가 5분간 제한됩니다.", null);
-    }
-
-    @ExceptionHandler(UserIsLockedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleUserIsLockedException(UserIsLockedException e){
-        return nok(403, "계정이 잠겨있습니다. 관리자에게 문의하세요.", null);
-    }
-
-    @ExceptionHandler(LastPwException.class)
-    public ResponseEntity<ApiResponse<Object>> handleLastPwException(LastPwException e){
-        return nok(403, "비밀번호를 변경한지 3개월이 지났습니다. 보안을 위해 비밀번호를 변경해주세요.", e.getMessage());
-    }
-
-    @ExceptionHandler(LastLoginException.class)
-    public ResponseEntity<ApiResponse<Object>> handleLastLoginException(LastLoginException e){
-        return nok(403, "마지막 로그인이 1개월 이전이라 계정을 임시잠금조치하였습니다. 관리자에게 문의하세요.", null);
-    }
-
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException e){
 //        return nok(500, "실행 과정 중 오류가 발생했습니다.",e.getClass());

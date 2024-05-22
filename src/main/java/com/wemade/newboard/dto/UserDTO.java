@@ -35,7 +35,6 @@ public class UserDTO extends BaseDTO{
         this.setPhone(updateUserParam.getPhone());
         this.setPassword(updateUserParam.getPassword());
         this.setUpdatedBy(userNo);
-        // updatedAt 자동으로 업데이트 되나? mysql db에서
     }
 
 }

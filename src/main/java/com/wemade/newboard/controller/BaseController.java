@@ -15,13 +15,11 @@ public class BaseController {
     }
 
     protected <T> ResponseEntity<ApiResponse<T>> ok(T data) {
-
         return responseEntity(FrkConstants.CD_OK, FrkConstants.SUCCESS, data);
 
     }
 
     protected <T> ResponseEntity<ApiResponse<T>> ok(String message, T data) {
-
         return responseEntity(FrkConstants.CD_OK, message, data);
 
     }
@@ -35,14 +33,12 @@ public class BaseController {
     }
 
     protected ResponseEntity<ApiResponse<Void>> ok() {
-
         return responseEntity(FrkConstants.CD_OK, FrkConstants.SUCCESS, null);
 
     }
 
     protected <T> ResponseEntity<ApiResponse<T>> nok(T body) {
         return responseEntity(FrkConstants.CD_NOK, FrkConstants.FAIL, body);
-
     }
 
     protected <T> ResponseEntity<ApiResponse<T>> nok(int resultCode) {

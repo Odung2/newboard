@@ -36,11 +36,44 @@ public class UserController extends BaseController{
     private final PostService postService;
     private final CommentService commentService;
 
-
+    /**
+     * html 로그인
+     * @return
+     */
     @GetMapping("/public/login")
     public String showLoginPage() {
-        return "login"; // signup.html 템플릿을 가리킵니다.
+        return "login";
     }
+
+    /**
+     * html 회원가입
+     * @return
+     */
+    @GetMapping("/public/sign-up")
+    public String showSignupPage() {
+        return "signup";
+    }
+
+    /**
+     * html 개인정보 수정
+     * @return
+     */
+    @GetMapping("/public/show-my-page")
+    public String showMyPage() {
+        return "profileEditingPage";
+    }
+    /**
+     * 회원가입
+     * @param signupParam 등록할 사용자의 데이터를 담은 DTO(userId, nickname, password)
+     * @return user 등록된 유저 정보
+     */
+    @Operation(summary = "회원가입(새로운 사용자 등록)", description = "새로운 사용자를 등록합니다.")
+    @PostMapping("/public/sign-up")
+    public ResponseEntity<ApiResponse<String>> SignUp(
+            @RequestBody @Valid SignupParam signupParam) throws Exception {
+        return ok(userService.insertUser(signupParam));
+    }
+
     /**
      * 로그인
      * @param loginParam [userId, password]
@@ -55,41 +88,7 @@ public class UserController extends BaseController{
     }
 
     /**
-     * 새 액세스 토큰 발급(액세스 토큰 만료 && 리프레시 토큰 유효 시)
-     * @param accessJWT 만료된 액세스 토큰
-     * @param refreshJWT 유효한 리프레시 토큰
-     * @return 새 액세스 토큰 발급
-     * @throws Exception 캐시 Not Found / 리프레시 만료 / 액세스 유효
-     */
-    @Operation(summary = "refresh token API", description = "access token 만료 시 refresh token을 받습니다.")
-    @PostMapping("/public/refresh-token")
-    public ResponseEntity<ApiResponse<String>> refreshTokenAuth(
-            @RequestHeader("Authorization") String accessJWT,
-            @RequestHeader(value="Refresh-token", defaultValue = "") String refreshJWT
-            ) throws Exception {
-        return ok("새로 발급된 액세스 토큰으로 접속해주세요.", authService.issueNewAccessToken(accessJWT, refreshJWT));
-    }
-    @GetMapping("/public/sign-up")
-    public String showSignupPage() {
-        return "signup"; // signup.html 템플릿을 가리킵니다.
-    }
-    /**
-     * 회원가입
-     *
-     * @param signupParam 등록할 사용자의 데이터를 담은 DTO(userId, nickname, password)
-     * @return user 등록된 유저 정보
-     */
-
-    @Operation(summary = "회원가입(새로운 사용자 등록)", description = "새로운 사용자를 등록합니다.")
-    @PostMapping("/public/sign-up")
-    public ResponseEntity<ApiResponse<String>> SignUp(
-            @RequestBody @Valid SignupParam signupParam) throws Exception {
-        return ok(userService.insertUser(signupParam));
-    }
-
-    /**
      * 비밀번호 찾기
-     *
      * @param findPasswordParam 새 비밀번호를 발급받기 위한 유저 정보
      * @return user 등록된 유저 정보
      */
@@ -100,14 +99,8 @@ public class UserController extends BaseController{
         return ok(userService.findPassword(findPasswordParam));
     }
 
-    @GetMapping("/public/show-my-page")
-    public String showMyPage() {
-        return "profileEditingPage"; // signup.html 템플릿을 가리킵니다.
-    }
-
     /**
      * 개인정보 조회, 액세스 토큰을 통해 인증된 사용자의 개인정보 조회 요청 처리
-     *
      * @param userNo 액세스 토큰
      * @return user
      */
@@ -120,7 +113,6 @@ public class UserController extends BaseController{
 
     /**
      * 개인정보 수정, 액세스 토큰을 통해 인증된 사용자의 개인정보 수정 요청 처리
-     *
      * @param userNo
      * @param updateUserParam [nickname, password], 둘 다 nullable
      * @return
@@ -148,7 +140,6 @@ public class UserController extends BaseController{
 
     /**
      * 내가 작성한 게시글 조회
-     *
      * @param userNo 액세스 토큰
      * @return user
      */
@@ -161,7 +152,6 @@ public class UserController extends BaseController{
 
     /**
      * 내가 작성한 댓글 조회
-     *
      * @param userNo 액세스 토큰
      * @return user
      */
@@ -174,7 +164,6 @@ public class UserController extends BaseController{
 
     /**
      * (개인) 임시 저장글 조회
-     *
      * @param userNo 액세스 토큰
      * @return user
      */
@@ -183,5 +172,21 @@ public class UserController extends BaseController{
     public ResponseEntity<ApiResponse<List<DetailPostRes>>> getMyTempPosts(
             @RequestAttribute("reqId") @Min(value = 1, message = "1 이상부터 입력가능합니다.") int userNo) {
         return ok(postService.getUserTempPosts(userNo));
+    }
+
+    /**
+     * 새 액세스 토큰 발급(액세스 토큰 만료 && 리프레시 토큰 유효 시)
+     * @param accessJWT 만료된 액세스 토큰
+     * @param refreshJWT 유효한 리프레시 토큰
+     * @return 새 액세스 토큰 발급
+     * @throws Exception 캐시 Not Found / 리프레시 만료 / 액세스 유효
+     */
+    @Operation(summary = "refresh token API", description = "access token 만료 시 refresh token을 받습니다.")
+    @PostMapping("/public/refresh-token")
+    public ResponseEntity<ApiResponse<String>> refreshTokenAuth(
+            @RequestHeader("Authorization") String accessJWT,
+            @RequestHeader(value="Refresh-token", defaultValue = "") String refreshJWT
+    ) throws Exception {
+        return ok("새로 발급된 액세스 토큰으로 접속해주세요.", authService.issueNewAccessToken(accessJWT, refreshJWT));
     }
 }

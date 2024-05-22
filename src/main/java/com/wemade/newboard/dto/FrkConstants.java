@@ -15,15 +15,7 @@ public class FrkConstants {
      */
     public static final String passwordRegexUnder12 = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\{\\}\\[\\]\\/?.,;:|\\)*~`!^\\-_+<>@#$%&\\\\=\\(\\'\\\"]).{8,11}$";
     public static final String passwordRegex12orMore = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\{\\}\\[\\]\\/?.,;:|\\)*~`!^\\-_+<>@#$%&\\\\=\\(\\'\\\"]).{12,16}$";
-
-    public static final String findByEmail = "email";
-    public static final String findByUserId = "userId";
-
     public final static int CD_PARAM_ERR = 400;
 
-    public static final int lockUser = 1;
-    public static final int unlockUser = 0;
-
-    public static final int month = 31;
 
 }

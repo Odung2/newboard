@@ -24,14 +24,31 @@ public class CommentService {
         return commentMapper.getCommentByPostId(postId);
     }
 
+    /**
+     * 댓글 조회
+     * @param commentId
+     * @return
+     */
     public CommentDTO getCommentByCommentId(int commentId){
         return commentMapper.getCommentByCommentId(commentId);
     }
 
+    /**
+     * 댓글 반환
+     * @param postId
+     * @return
+     */
     public List<CommentRes> getCommentRes(int postId) {
         return commentMapper.getComments(postId);
     }
-    
+
+    /**
+     * 댓글 작성
+     * @param insertCommentParam
+     * @param postNo
+     * @param userNo
+     * @return
+     */
     public String insertComment(InsertCommentParam insertCommentParam, int postNo, int userNo){
 
         CommentDTO comment = new CommentDTO();
@@ -84,6 +101,11 @@ public class CommentService {
         return commentMapper.delete(commentId);
     }
 
+    /**
+     * 댓글 존재 확인
+     * @param id
+     * @return
+     */
     public List<CommentRes> getUserComments(int id) {
         List<CommentRes> userComments= commentMapper.getUserComments(id);
         if (userComments == null) {
