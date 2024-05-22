@@ -77,8 +77,8 @@ public class GlobalExceptionHandler extends BaseController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException e){
-//        return nok(500, "실행 과정 중 오류가 발생했습니다.",e.getClass());
-        return nok(500, e.getMessage(),e.getClass()); // 디버깅 용
+        return nok(500, "실행 과정 중 오류가 발생했습니다.",e.getClass());
+//        return nok(500, e.getMessage(),e.getClass()); // 디버깅 용
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
