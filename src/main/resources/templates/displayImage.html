@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Image</title>
+</head>
+<body>
+<div id="image-path-container">
+    <input type="text" id="image-path" placeholder="이미지 경로를 입력하세요">
+    <button id="get-btn">검색</button>
+</div>
+<div id="imageContainer"></div>
+
+<script>
+    // 이미지 표시 함수
+    function displayImage() {
+        const imagePath = document.getElementById('image-path').value.trim();
+
+        if (imagePath !== '') {
+            // const imageUrl = '/get-image?imagePath=' + encodeURIComponent(imagePath);
+            // const imagePath = encodeURIComponent(imagePath);
+
+            const imageName = 'f7f6ad76-935e-4b32-b0c1-7b71f38d79b3_ggulzamkawa.png';
+            const imageUrl = 'http://localhost:8080/newboard/get-image?imageName=' + imagePath;
+            fetch(imageUrl)
+                .then(response => response.text())
+                .then(imageHtml => {
+                    document.getElementById('imageContainer').innerHTML = imageHtml;
+                })
+                .catch(error => console.error('Error fetching image:', error));
+        } else {
+            console.error('Image path is empty');
+        }
+    }
+
+    // 검색 버튼 클릭 시 이미지 표시 함수 호출
+    document.getElementById('get-btn').addEventListener('click', displayImage);
+</script>
+</body>
+</html>

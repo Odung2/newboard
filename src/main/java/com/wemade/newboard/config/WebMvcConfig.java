@@ -27,7 +27,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/newboard/**")
-                .excludePathPatterns("/newboard/public/**") // signup, login, refresh-token, {id}
+                .excludePathPatterns("/newboard/public/**")// signup, login, refresh-token, {id}
+                .excludePathPatterns("/newboard/get-image")
         ;
 
     }
