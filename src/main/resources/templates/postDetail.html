@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .post-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .post-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .post-detail {
+            margin: 10px 0;
+        }
+        .post-contents {
+            margin-top: 20px;
+            white-space: pre-wrap; /* To preserve formatting of contents */
+        }
+        .comment-container {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .comment-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .comment-detail {
+            margin: 5px 0;
+        }
+        .comment-contents {
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap; /* To preserve formatting of contents */
+        }
+        .more-comments {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .more-comments button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="post-container">
+    <div class="post-title" id="post-title"></div>
+    <div class="post-detail">작성자: <span id="post-name"></span></div>
+    <div class="post-detail">작성일: <span id="post-created-at"></span></div>
+    <div class="post-contents" id="post-contents"></div>
+</div>
+
+<div class="comment-list" id="comment-list">
+    <!-- Comments will be dynamically inserted here -->
+</div>
+
+<div class="more-comments">
+    <button id="load-more-comments">더 보기</button>
+</div>
+
+<script>
+
+    function fetchPosts(postNo) {// Populate HTML with post data
+        const accessToken = getCookie('accessToken');
+
+        fetch(`http://localhost:8080/newboard/posts/${postNo}`, {
+            method: 'GET', // 예시로 POST 메서드 사용
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.resultCode !== 0) {
+                    let errorMessage = data.resultMessage;
+                    if (data.data && data.data.message) {
+                        errorMessage += "\n" + data.data.message;
+                    } else if (data.data) {
+                        errorMessage += "\n" + data.data;
+                    }
+                    alert(errorMessage);
+                } else {
+                    displayDetailPost(data.data);
+                }
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+    function displayDetailPost(postData){
+        document.getElementById("post-title").innerText = postData.post.title;
+        document.getElementById("post-name").innerText = postData.post.name;
+        document.getElementById("post-created-at").innerText = new Date(postData.post.createdAt).toLocaleString();
+        document.getElementById("post-contents").innerText = postData.post.contents;
+
+        // Populate HTML with comments data
+        postData.comment.forEach(comment => {
+            const commentList = document.getElementById("comment-list");
+
+            const commentContainer = document.createElement("div");
+            commentContainer.className = "comment-container";
+
+            const commentTitle = document.createElement("div");
+            commentTitle.className = "comment-title";
+            commentTitle.innerText = `Comment by ${comment.name}`;
+
+            const commentCreatedAt = document.createElement("div");
+            commentCreatedAt.className = "comment-detail";
+            commentCreatedAt.innerText = `작성일: ${new Date(comment.createdAt).toLocaleString()}`;
+
+            const commentContents = document.createElement("div");
+            commentContents.className = "comment-contents";
+            commentContents.innerText = comment.contents;
+
+            commentContainer.appendChild(commentTitle);
+            commentContainer.appendChild(commentCreatedAt);
+            commentContainer.appendChild(commentContents);
+
+            commentList.appendChild(commentContainer);
+        });
+    }
+
+    function getPostNoFromURL() {
+        const url = new URL(window.location.href);
+        const pathname = url.pathname; // URL 경로 추출
+        const pathSegments = pathname.split('/'); // 경로를 '/'로 분할하여 배열로 만듦
+        const postNo = pathSegments[pathSegments.length - 1]; // 배열의 마지막 요소가 postNo
+        return postNo;
+    }
+
+    window.onload = function() {
+        let postNo = getPostNoFromURL();
+        fetchPosts(postNo);
+    }
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // 쿠키 이름과 일치하는지 확인
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+</body>
+</html>

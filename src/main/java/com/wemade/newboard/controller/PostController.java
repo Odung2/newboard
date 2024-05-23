@@ -61,6 +61,18 @@ public class PostController extends BaseController{
     }
 
     /**
+     * 게시물 상세 보기
+     * @param postNo
+     * @return
+     */
+    @Operation(summary = "특정 게시물을 ID로 조회합니다.")
+    @GetMapping("public/posts/{postNo}")
+    public String showPostDetail(@PathVariable int postNo) {
+        return "postDetail";
+    }
+
+
+    /**
      * 게시물 리스트
      * @param basePagingParam
      * @return

@@ -3,6 +3,7 @@ package com.wemade.newboard.service;
 import com.wemade.newboard.dto.CommentDTO;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
 import com.wemade.newboard.mapper.CommentMapper;
+import com.wemade.newboard.mapper.PostMapper;
 import com.wemade.newboard.param.InsertCommentParam;
 import com.wemade.newboard.param.UpdateCommentParam;
 import com.wemade.newboard.response.CommentRes;
@@ -18,6 +19,7 @@ import java.util.List;
 public class CommentService {
 
     private final CommentMapper commentMapper;
+    private final PostMapper postMapper;
     private final AuthService authService;
 
     public List<CommentDTO> getCommentByPostId(int postId){
@@ -50,6 +52,11 @@ public class CommentService {
      * @return
      */
     public String insertComment(InsertCommentParam insertCommentParam, int postNo, int userNo){
+
+        // postNo 검사
+        if(postMapper.getPostById(postNo)==null){
+            throw new NotFoundException("해당 게시글이 존재하지 않습니다.");
+        }
 
         CommentDTO comment = new CommentDTO();
         comment.setContents(insertCommentParam.getContents());

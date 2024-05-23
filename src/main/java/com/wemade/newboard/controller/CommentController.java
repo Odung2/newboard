@@ -5,6 +5,7 @@ import com.wemade.newboard.param.UpdateCommentParam;
 import com.wemade.newboard.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class CommentController extends BaseController{
     @PostMapping("/{postNo}")
     public ResponseEntity<ApiResponse<String>> insertComment(
             @RequestAttribute("reqId") int userNo,
-            @PathVariable int postNo,
+            @Valid @Min(value=1, message = "1 이상 입력만 가능합니다.") @PathVariable int postNo,
             @RequestBody @Valid InsertCommentParam insertCommentParam){
         return ok(commentService.insertComment(insertCommentParam, postNo, userNo));
     }

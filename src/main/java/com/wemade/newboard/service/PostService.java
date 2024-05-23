@@ -84,7 +84,7 @@ public class PostService {
     public List<DetailPostRes> getUserPosts(int userNo) {
         List<DetailPostRes> userPosts = postMapper.getUserPosts(userNo);
         if (userPosts == null) {
-            throw new NotFoundException("사용자를 찾을 수 없습니다.");
+            throw new NotFoundException("게시물을 찾을 수 없습니다.");
         }
         return userPosts;
     }
@@ -97,7 +97,7 @@ public class PostService {
     public List<DetailPostRes> getUserTempPosts(int userNo) {
         List<DetailPostRes> userTempPosts = postMapper.getUserTempPosts(userNo);
         if (userTempPosts == null) {
-            throw new NotFoundException("사용자를 찾을 수 없습니다.");
+            throw new NotFoundException("게시물을 찾을 수 없습니다.");
         }
         return userTempPosts;
     }
