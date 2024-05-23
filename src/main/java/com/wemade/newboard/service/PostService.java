@@ -49,7 +49,7 @@ public class PostService {
         PostViewBO postView = new PostViewBO();
         postView.setPost(postMapper.getDetailPostRes(postNo));
         postView.setComment(commentService.getCommentRes(postNo));
-
+        postView.setFiles(postMapper.getFiles(postNo));
         return postView;
     }
 

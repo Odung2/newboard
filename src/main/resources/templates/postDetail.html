@@ -56,12 +56,55 @@
             font-size: 16px;
             cursor: pointer;
         }
+
+        .post-files {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .post-files h6 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 10px 0 0;
+            white-space: nowrap;
+        }
+
+        .post-files .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .post-files .file-list span {
+            background-color: #f1f1f1;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+        .file-preview {
+            display: flex;
+            align-items: center;
+        }
+        .file-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            margin-right: 10px;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="post-container">
     <div class="post-title" id="post-title"></div>
+    <div class="post-files" id="post-files">
+        <h6>첨부파일 목록: </h6>
+        <div class="file-list" id="file-list"></div>
+    </div>
+    <div class="file-preview" id="file-preview"></div>
+<!--    <img id="image-preview" src="" alt="Image Preview">-->
+
     <div class="post-detail">작성자: <span id="post-name"></span></div>
     <div class="post-detail">작성일: <span id="post-created-at"></span></div>
     <div class="post-contents" id="post-contents"></div>
@@ -110,10 +153,39 @@
     }
     function displayDetailPost(postData){
         document.getElementById("post-title").innerText = postData.post.title;
+
         document.getElementById("post-name").innerText = postData.post.name;
         document.getElementById("post-created-at").innerText = new Date(postData.post.createdAt).toLocaleString();
         document.getElementById("post-contents").innerText = postData.post.contents;
+        // Populate HTML with file names
+        const fileList = document.getElementById("file-list");
+        const filePreviewContainer = document.getElementById("file-preview");
+        // const imagePreview = document.getElementById("image-preview");
+        fileList.innerHTML = ''; // Clear current file list
 
+        postData.files.forEach(file => {
+            const fileItem = document.createElement("span");
+            fileItem.innerText = file.fileName;
+            fileList.appendChild(fileItem);
+
+            const filePreview = document.createElement("div");
+            filePreview.className = "file-preview-item";
+
+            // 이미지 파일인 경우 이미지를 표시
+            if (file.fileExt === ".png" || file.fileExt === ".jpg" || file.fileExt === ".jpeg" || file.fileExt === ".gif") {
+                const img = document.createElement("img");
+                img.src = file.filePath;
+                filePreview.appendChild(img);
+                // imagePreview.src(file.filePath);
+            } else {
+                // 이미지 파일이 아닌 경우 파일 이름을 표시
+                const fileName = document.createElement("span");
+                fileName.innerText = file.fileName;
+                filePreview.appendChild(fileName);
+            }
+
+            filePreviewContainer.appendChild(filePreview);
+        });
         // // Populate HTML with comments data
         // postData.comment.forEach(comment => {
         //     const commentList = document.getElementById("comment-list");

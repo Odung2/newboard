@@ -60,6 +60,11 @@
         LIMIT 1
     </select>
 
+    <select id="getFiles" parameterType="int" resultType="FileDTO">
+        SELECT * FROM file
+        WHERE post_no = ${postNo}
+    </select>
+
     <insert id="uploadFile" parameterType="FileDTO">
         INSERT INTO file (post_no, user_no, file_path, file_name, file_ext, is_temp)
         VALUES (#{postNo}, #{userNo}, #{filePath}, #{fileName}, #{fileExt}, #{isTemp})
