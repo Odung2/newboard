@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프로필 수정 페이지</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,7 +48,74 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover{
+            background-color: #0056b3;
+        }
+
+        /* Custom CSS */
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-body {
+            max-height: 60vh; /* 모달의 최대 높이를 화면 높이의 60%로 설정 */
+            overflow-y: auto; /* 세로 스크롤 허용 */
+            padding: 30px;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+        #postDetails {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .scrollable {
+            max-height: 100%; /* 최대 높이를 부모 요소에 맞춤 */
+            overflow-y: auto; /* 세로 스크롤 허용 */
+            overflow-x: hidden; /* 가로 스크롤 숨김 */
+        }
+        /* Custom CSS */
+        .post {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .post-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .post-details {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .comment {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #666;
+        }
+        .comment-details {
+            font-size: 16px;
+            color: #666;
+        }
     </style>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -62,11 +131,81 @@
     </form><br>
     <form id="deleteForm">
         <input type="submit" value="회원 탈퇴">
-    </form>
+    </form><br>
+
+
+    <button type="button" class="btn btn-primary" id="openDetailPostModal" onclick="openDetailPostModal()">내가 작성한 글</button><br><br>
+    <button type="button" class="btn btn-primary" id="openDetailTempPostModal" onclick="openDetailTempPostModal()">임시 저장글</button><br><br>
+    <button type="button" class="btn btn-primary" id="openDetailCommentModal" onclick="openDetailCommentModal()">내가 작성한 댓글</button>
 
     <!-- FIXME : 회원가입 말고 내가 작성한 -->
 </div>
-    <script>
+<div class="modal fade" id="detailPostModal" tabindex="-1" role="dialog" aria-labelledby="detailPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailPostModalLabel">게시물 상세보기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="postDetails" class="scrollable">
+                    <!-- 게시물 내용이 여기에 동적으로 삽입됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Button trigger modal -->
+<div class="modal fade" id="detailTempPostModal" tabindex="-1" role="dialog" aria-labelledby="detailTempPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailTempPostModalLabel">임시 게시물 상세보기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="tempPostDetails" class="scrollable">
+                    <!-- 게시물 내용이 여기에 동적으로 삽입됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="detailCommentModal" tabindex="-1" role="dialog" aria-labelledby="detailCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailCommentModalLabel">내가 작성한 댓글</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="commentDetails" class="scrollable">
+                    <!-- 댓글 내용이 여기에 동적으로 삽입됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+ <script>
         // 페이지가 로드될 때 사용자 정보를 불러오는 함수
         document.getElementById('updateForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
@@ -78,15 +217,7 @@
                 data[key] = value || null; // Convert empty strings to null
            });
 
-            var cookies = document.cookie.split(';');
-            var accessToken = null;
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.startsWith("accessToken=")) {
-                    accessToken = cookie.substring("accessToken=".length, cookie.length);
-                    break;
-                }
-            }
+            var accessToken = getCookie('accessToken');
 
             fetch('http://localhost:8080/newboard/my-page', {
                 method: 'PUT',
@@ -202,6 +333,211 @@
                     alert('회원 탈퇴 중 에러 발생.');
                 });
         });
+
+        const openDetailTempPostModal = () => {
+            // 쿠키에서 access token 가져오기
+            const accessToken = getCookie('accessToken');
+
+            // AJAX 요청 헤더에 access token 포함하여 요청
+            fetch('http://localhost:8080/newboard/my-page/temp-posts', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => response.json()) // JSON 형식으로 응답을 파싱합니다.
+                .then(data => {
+                    // 받아온 데이터를 HTML로 변환하여 표시합니다.
+
+                    if (data.resultCode !== 0) {
+                        let errorMessage = data.resultMessage;
+                        if (data.data && data.data.message) {
+                            errorMessage += "\n" + data.data.message;
+                        } else if (data.data) {
+                            errorMessage += "\n" + data.data;
+                        }
+                        alert(errorMessage);
+                    } else {
+                        const tempPostDetails = document.getElementById('tempPostDetails');
+                        tempPostDetails.innerHTML = ''; // 기존 데이터를 비웁니다.
+                        data.data.forEach(post => { // 데이터 배열을 순회합니다.
+                            const postElement = document.createElement('div');
+                            postElement.classList.add('post');
+
+                            const titleElement = document.createElement('div');
+                            titleElement.classList.add('post-title');
+                            titleElement.innerText = `게시물 제목: ${post.title}`;
+
+                            const detailsElement = document.createElement('div');
+                            detailsElement.classList.add('post-details');
+                            detailsElement.innerHTML = `
+                            <div class="post">
+                                <div class="post-title">${post.title}</div>
+                                <div class="post-details">
+                                    <p><strong>게시물 번호:</strong> ${post.postNo}</p>
+                                    <p><strong>작성자:</strong> ${post.name}</p>
+                                    <p><strong>내용:</strong> ${post.contents}</p>
+                                    <p>작성일: ${post.createdAt}</p>
+                                </div>
+                            </div>
+                        `;
+
+                            postElement.appendChild(titleElement);
+                            postElement.appendChild(detailsElement);
+
+                            tempPostDetails.appendChild(postElement);
+                        });
+
+                        $('#detailTempPostModal').modal('show');
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        };
+
+        const openDetailPostModal = () => {
+            // 쿠키에서 access token 가져오기
+            const accessToken = getCookie('accessToken');
+
+            // AJAX 요청 헤더에 access token 포함하여 요청
+            fetch('http://localhost:8080/newboard/my-page/posts', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => response.json()) // JSON 형식으로 응답을 파싱합니다.
+                .then(data => {
+                    // 받아온 데이터를 HTML로 변환하여 표시합니다.
+
+                    if (data.resultCode !== 0) {
+                        let errorMessage = data.resultMessage;
+                        if (data.data && data.data.message) {
+                            errorMessage += "\n" + data.data.message;
+                        } else if (data.data) {
+                            errorMessage += "\n" + data.data;
+                        }
+                        alert(errorMessage);
+                    } else {
+                        const postDetails = document.getElementById('postDetails');
+                        postDetails.innerHTML = ''; // 기존 데이터를 비웁니다.
+                        data.data.forEach(post => { // 데이터 배열을 순회합니다.
+                            const postElement = document.createElement('div');
+                            postElement.classList.add('post');
+
+                            const titleElement = document.createElement('div');
+                            titleElement.classList.add('post-title');
+                            titleElement.innerText = `게시물 제목: ${post.title}`;
+
+                            const detailsElement = document.createElement('div');
+                            detailsElement.classList.add('post-details');
+                            detailsElement.innerHTML = `
+                            <div class="post">
+                                <div class="post-title">${post.title}</div>
+                                <div class="post-details">
+                                    <p><strong>게시물 번호:</strong> ${post.postNo}</p>
+                                    <p><strong>작성자:</strong> ${post.name}</p>
+                                    <p><strong>내용:</strong> ${post.contents}</p>
+                                    <p>작성일: ${post.createdAt}</p>
+                                </div>
+                            </div>
+                        `;
+
+                            postElement.appendChild(titleElement);
+                            postElement.appendChild(detailsElement);
+
+                            postDetails.appendChild(postElement);
+                        });
+
+                        $('#detailPostModal').modal('show');
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        };
+
+        const openDetailCommentModal = () => {
+            // 쿠키에서 access token 가져오기
+            const accessToken = getCookie('accessToken');
+
+            // AJAX 요청 헤더에 access token 포함하여 요청
+            fetch('http://localhost:8080/newboard/my-page/comments', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => response.json()) // JSON 형식으로 응답을 파싱합니다.
+                .then(data => {
+                    // 받아온 데이터를 HTML로 변환하여 표시합니다.
+
+                    if (data.resultCode !== 0) {
+                        let errorMessage = data.resultMessage;
+                        if (data.data && data.data.message) {
+                            errorMessage += "\n" + data.data.message;
+                        } else if (data.data) {
+                            errorMessage += "\n" + data.data;
+                        }
+                        alert(errorMessage);
+                    } else {
+                        const commentDetails = document.getElementById('commentDetails');
+                        commentDetails.innerHTML = ''; // 기존 데이터를 비웁니다.
+                        data.data.forEach(comment => { // 데이터 배열을 순회합니다.
+                            const commentElement = document.createElement('div');
+                            commentElement.classList.add('comment');
+                            //
+                            // const titleElement = document.createElement('div');
+                            // titleElement.classList.add('comment-title');
+
+                            const detailsElement = document.createElement('div');
+                            detailsElement.classList.add('comment-details');
+                            detailsElement.innerHTML = `
+<!--                            <div class="comment-details">-->
+                                <div class="comment">
+                                    <p><strong>댓글 번호:</strong> ${comment.commentNo}</p>
+                                    <p><strong>게시물 번호:</strong> ${comment.postNo}</p>
+                                    <p><strong>작성자:</strong> ${comment.name}</p>
+                                    <p><strong>내용:</strong> ${comment.contents}</p>
+                                    <p>작성일: ${comment.createdAt}</p>
+                                </div>
+<!--                            </div>-->
+                        `;
+
+                            // commentElement.appendChild(titleElement);
+                            commentElement.appendChild(detailsElement);
+
+                            commentDetails.appendChild(commentElement);
+                        });
+
+                        $('#detailCommentModal').modal('show');
+
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        };
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // 쿠키 이름과 일치하는지 확인
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html>

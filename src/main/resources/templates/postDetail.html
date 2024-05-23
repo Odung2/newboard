@@ -76,6 +76,8 @@
 </div>
 
 <script>
+    let commentsData ='';
+    let commentsToShow = 1;
 
     function fetchPosts(postNo) {// Populate HTML with post data
         const accessToken = getCookie('accessToken');
@@ -99,6 +101,8 @@
                     alert(errorMessage);
                 } else {
                     displayDetailPost(data.data);
+                    commentsData=data.data.comment;
+                    displayComments(commentsData)
                 }
 
             })
@@ -110,10 +114,94 @@
         document.getElementById("post-created-at").innerText = new Date(postData.post.createdAt).toLocaleString();
         document.getElementById("post-contents").innerText = postData.post.contents;
 
-        // Populate HTML with comments data
-        postData.comment.forEach(comment => {
-            const commentList = document.getElementById("comment-list");
+        // // Populate HTML with comments data
+        // postData.comment.forEach(comment => {
+        //     const commentList = document.getElementById("comment-list");
+        //
+        //     const commentContainer = document.createElement("div");
+        //     commentContainer.className = "comment-container";
+        //
+        //     const commentTitle = document.createElement("div");
+        //     commentTitle.className = "comment-title";
+        //     commentTitle.innerText = `Comment by ${comment.name}`;
+        //
+        //     const commentCreatedAt = document.createElement("div");
+        //     commentCreatedAt.className = "comment-detail";
+        //     commentCreatedAt.innerText = `작성일: ${new Date(comment.createdAt).toLocaleString()}`;
+        //
+        //     const commentContents = document.createElement("div");
+        //     commentContents.className = "comment-contents";
+        //     commentContents.innerText = comment.contents;
+        //
+        //     commentContainer.appendChild(commentTitle);
+        //     commentContainer.appendChild(commentCreatedAt);
+        //     commentContainer.appendChild(commentContents);
+        //
+        //     commentList.appendChild(commentContainer);
+        // });
+    }
 
+    function getPostNoFromURL() {
+        const url = new URL(window.location.href);
+        const pathname = url.pathname; // URL 경로 추출
+        const pathSegments = pathname.split('/'); // 경로를 '/'로 분할하여 배열로 만듦
+        const postNo = pathSegments[pathSegments.length - 1]; // 배열의 마지막 요소가 postNo
+        return postNo;
+    }
+
+    window.onload = function() {
+        let postNo = getPostNoFromURL();
+        fetchPosts(postNo);
+    }
+        // // Example data, replace with actual data fetching mechanism
+    // const postData = {
+    //     postNo: 1,
+    //     title: "Sample Post Title",
+    //     name: "John Doe",
+    //     contents: "This is the content of the post. It can be quite long and have multiple paragraphs.\nHere's a new line.",
+    //     createdAt: "2023-05-21T10:15:30"
+    // };
+    //
+    // const commentsData = [
+    //     {
+    //         commentNo: 1,
+    //         postNo: 1,
+    //         name: "Alice",
+    //         contents: "This is a comment.",
+    //         createdAt: "2023-05-22T12:30:00",
+    //         updatedAt: "2023-05-22T13:30:00"
+    //     },
+    //     {
+    //         commentNo: 2,
+    //         postNo: 1,
+    //         name: "Bob",
+    //         contents: "This is another comment.",
+    //         createdAt: "2023-05-23T14:00:00",
+    //         updatedAt: "2023-05-23T15:00:00"
+    //     },
+    //     {
+    //         commentNo: 3,
+    //         postNo: 1,
+    //         name: "Charlie",
+    //         contents: "Yet another comment.",
+    //         createdAt: "2023-05-24T16:00:00",
+    //         updatedAt: "2023-05-24T17:00:00"
+    //     }
+    //     // Add more comments as needed
+    // ];
+    //
+    // // Populate HTML with post data
+    // document.getElementById("post-title").innerText = postData.title;
+    // document.getElementById("post-name").innerText = postData.name;
+    // document.getElementById("post-created-at").innerText = new Date(postData.createdAt).toLocaleString();
+    // document.getElementById("post-contents").innerText = postData.contents;
+    //
+
+    function displayComments(commentsData) {
+        const commentList = document.getElementById("comment-list");
+        commentList.innerHTML = ''; // Clear current comments
+
+        commentsData.slice(0, commentsToShow).forEach(comment => {
             const commentContainer = document.createElement("div");
             commentContainer.className = "comment-container";
 
@@ -137,18 +225,13 @@
         });
     }
 
-    function getPostNoFromURL() {
-        const url = new URL(window.location.href);
-        const pathname = url.pathname; // URL 경로 추출
-        const pathSegments = pathname.split('/'); // 경로를 '/'로 분할하여 배열로 만듦
-        const postNo = pathSegments[pathSegments.length - 1]; // 배열의 마지막 요소가 postNo
-        return postNo;
-    }
-
-    window.onload = function() {
-        let postNo = getPostNoFromURL();
-        fetchPosts(postNo);
-    }
+    document.getElementById("load-more-comments").addEventListener("click", () => {
+        commentsToShow += 3;
+        displayComments(commentsData);
+    });
+    //
+    // // Initial display of comments
+    // displayComments();
 
     function getCookie(name) {
         var cookieValue = null;
@@ -165,6 +248,7 @@
         }
         return cookieValue;
     }
+
 </script>
 
 </body>
