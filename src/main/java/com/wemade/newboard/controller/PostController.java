@@ -173,7 +173,7 @@ public class PostController extends BaseController{
         String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8.name());
 
         // 이미지 파일을 Resource 객체로 로드
-        Resource resource = new FileSystemResource(decodedImageName);
+        Resource resource = new FileSystemResource(uploadPath+decodedImageName);
 
         if (!resource.exists()) {
             return ResponseEntity.notFound().build();
