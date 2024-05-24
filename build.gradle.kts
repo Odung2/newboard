@@ -23,7 +23,6 @@ repositories {
 
 dependencies {
 //	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
 	compileOnly("org.projectlombok:lombok")
@@ -31,15 +30,24 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
-
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
-
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
+	// thymeleaf 설정
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
+	// redis 설정
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+	// Valid 체크
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	// 메일 서비스
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+
+	// jwt
 	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
 	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.2")
 	runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.11.2")
