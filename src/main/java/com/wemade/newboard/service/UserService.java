@@ -16,6 +16,7 @@ import org.webjars.NotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class UserService {
     private final UserMapper userMapper;
+    private final EmailService emailService;
 
     /**
      * 유저 정보
@@ -68,12 +70,21 @@ public class UserService {
      * @param findPasswordParam
      * @return
      */
-    public String findPassword(FindPasswordParam findPasswordParam) {
-        if( !(findPasswordParam.getEmail().equals(userMapper.getEmail(findPasswordParam.getUserId())))){
+    public String findPassword(FindPasswordParam findPasswordParam) throws NoSuchAlgorithmException {
+        UserDTO user = userMapper.getUserByUserId(findPasswordParam.getUserId());
+        if( !(findPasswordParam.getEmail().equals(user.getEmail()))){
             throw new NotFoundException("해당되는 이메일이 아닙니다.");
         }
 
         //FIXME: 새로운 비밀번호(랜덤) 암호화 후 업데이트, 그리고 이메일로 발송하는 로직
+
+        String tempPassword = UUID.randomUUID().toString().substring(0, 12);
+        user.setPassword(plainToSha256(tempPassword));
+
+        // 비밀번호 유효성 검사를 하지 않고 바로 수정함.
+        userMapper.update(user);
+
+        emailService.sendEmail(user.getEmail(), "Password Reset", "Your new password is: " + tempPassword);
 
         return ";";
     }

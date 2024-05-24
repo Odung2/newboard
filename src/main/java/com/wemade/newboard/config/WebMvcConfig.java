@@ -29,6 +29,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/newboard/**")
                 .excludePathPatterns("/newboard/public/**")// signup, login, refresh-token, {id}
                 .excludePathPatterns("/newboard/get-image")
+                .excludePathPatterns("/newboard/find-password")
         ;
 
     }

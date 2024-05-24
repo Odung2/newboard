@@ -89,11 +89,19 @@ public class UserController extends BaseController{
 
     /**
      * 비밀번호 찾기
+     */
+    @Operation(summary = "비밀번호 찾기", description = "이메일로 새 비밀번호 발송")
+    @GetMapping("/public/find-password")
+    public String showFindPassword() {
+        return "findPassword";
+    }
+    /**
+     * 비밀번호 찾기
      * @param findPasswordParam 새 비밀번호를 발급받기 위한 유저 정보
      * @return user 등록된 유저 정보
      */
     @Operation(summary = "비밀번호 찾기", description = "이메일로 새 비밀번호 발송")
-    @PostMapping("/public/find-password")
+    @PostMapping("/find-password")
     public ResponseEntity<ApiResponse<String>> findPassword(
             @RequestBody @Valid FindPasswordParam findPasswordParam) throws Exception {
         return ok(userService.findPassword(findPasswordParam));
