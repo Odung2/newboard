@@ -1,6 +1,7 @@
 package com.wemade.newboard.service;
 
 import com.wemade.newboard.dto.FileDTO;
+import com.wemade.newboard.dto.FrkConstants;
 import com.wemade.newboard.dto.PostDTO;
 import com.wemade.newboard.dto.PostViewBO;
 import com.wemade.newboard.exception.InvalidFileException;
@@ -21,6 +22,8 @@ import org.webjars.NotFoundException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
+import static com.wemade.newboard.dto.FrkConstants.uploadPath;
 
 @Service
 @RequiredArgsConstructor
@@ -293,7 +296,7 @@ public class PostService {
      * @throws IOException
      */
     private void saveFiles(int postNo, int userNo, boolean temp, ArrayList<MultipartFile> files) throws IOException {
-        String uploadPath = "/Users/wm-id002518/newboardfiles/";
+//        String uploadPath = "/Users/wm-id002518/newboardfiles/";
 
         for(MultipartFile file : files) {
             String originalFileName = file.getOriginalFilename();
@@ -307,7 +310,8 @@ public class PostService {
             fileform.setUserNo(userNo);
             fileform.setFileExt(originalFileName.substring(originalFileName.lastIndexOf(".")));
             fileform.setFileName(originalFileName);
-            fileform.setFilePath(uploadPath + savedFileName);
+//            fileform.setFilePath(uploadPath + savedFileName); // 보안 이슈로
+            fileform.setFilePath(savedFileName);
             fileform.setTemp(temp);
             postMapper.uploadFile(fileform);
         }
