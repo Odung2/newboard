@@ -35,7 +35,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         if(StringUtils.isBlank(accessJWT) ){ // access token만 확인
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "No Authorization token provided");
-            return false;
+//            return false;
         }
         authService.validateAccessToken(accessJWT);
         int id = authService.getIdFromToken(accessJWT);
