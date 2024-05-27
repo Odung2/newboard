@@ -63,6 +63,7 @@ public class AuthService {
      */
     public void validatePassword(UserDTO user, String loginPassword) throws CredentialException, NoSuchAlgorithmException {
         String hashedPassword = userService.plainToSha256(loginPassword);
+        // 저장된 비밀번호와 입력된 비밀번호가 일치하지 않으면
         if (!user.getPassword().equals(hashedPassword)) {
             throw new CredentialException("비밀번호가 일치하지 않습니다.");
         }
@@ -75,12 +76,13 @@ public class AuthService {
      */
     public TokensDTO issueTokens(UserDTO user) {
         TokensDTO issuedTokens = new TokensDTO();
+        // 액세스 토큰 발급 후 set
         issuedTokens.setAccessToken(generateAccessJWT(user));
+        // 리프레시 토큰 발급 후 set
         issuedTokens.setRefreshToken(generateRefreshJWT());
-
-        // redis 에 저장
+        // redis 에 액세스 토큰, 리프레시 토큰 저장
         redisService.setValues(issuedTokens.getAccessToken(), issuedTokens.getRefreshToken());
-
+        // 토큰을 발급해줌.
         return issuedTokens;
     }
 
@@ -171,10 +173,8 @@ public class AuthService {
     public void validateRefreshToken(String accessJWT, String refreshJWT) {
         // redis에 저장된 refresh token 가져오기
         String storedRefreshJWT = redisService.getValues(accessJWT);
-
         // redis와 입력받은 refresh token이 일치하지 않는 경우
         if(!refreshJWT.equals(storedRefreshJWT)) throw new NotFoundException("access token에 해당하는 refresh token이 존재하지 않습니다. 다시 로그인 해주세요.");
-
         // refresh token도 만료되지 않았는지 확인
         validateRefreshTokenClaim(refreshJWT);
     }
@@ -205,10 +205,10 @@ public class AuthService {
         // access token은 만료되어야 새로 access token을 발급 해줌.(무한 발급 방지)
         int id = Integer.parseInt(e.getClaims().getSubject());
         String userId = e.getClaims().get("userId", String.class);
-        //FIXME: getId가 accesstoken이랑 동일한지 확인 필요
-        redisService.deleteValues(accessToken); // 기존 accessJWT(key), refresh(value) pair는 redis에서 삭제
-
-        String newAccessJWT = generateAccessJWT(id, userId); // 새로운 Access JWT 발급
+        // 기존 accessJWT(key), refresh(value) pair는 redis에서 삭제
+        redisService.deleteValues(accessToken);
+        // 새로운 Access JWT 발급
+        String newAccessJWT = generateAccessJWT(id, userId);
         redisService.setValues(newAccessJWT, refreshJWT); // redis에 새 조합 등록
         return newAccessJWT;
     }
@@ -231,6 +231,7 @@ public class AuthService {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
+
     /**
      * 사용자 id, userId 기반 액세스 토큰 생성
      * @param id id

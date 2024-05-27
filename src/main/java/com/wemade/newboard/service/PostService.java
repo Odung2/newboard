@@ -1,7 +1,6 @@
 package com.wemade.newboard.service;
 
 import com.wemade.newboard.dto.FileDTO;
-import com.wemade.newboard.dto.FrkConstants;
 import com.wemade.newboard.dto.PostDTO;
 import com.wemade.newboard.dto.PostViewBO;
 import com.wemade.newboard.exception.InvalidFileException;
@@ -12,8 +11,8 @@ import com.wemade.newboard.param.UpdatePostParam;
 import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.PublicPostRes;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -105,30 +104,6 @@ public class PostService {
         return userTempPosts;
     }
 
-
-//    public String insertPost(MultipartHttpServletRequest request, int userNo) throws IOException {
-//        PostDTO post = new PostDTO();
-//        post.setTitle(request.getParameter("title"));
-//        post.setContents(request.getParameter("contents"));
-//        post.setUserNo(userNo);
-//        post.setTemp(request.getParameter("isTemp"));
-//        postMapper.insert(post);
-//
-//        int postNo = postMapper.getPostNoByUserNoAndTitle(userNo, request.getParameter("title"));
-//
-//        ArrayList<MultipartFile> files = new ArrayList<>();
-//        MultiValueMap<String, MultipartFile> multipartFiles = request.getMultiFileMap();
-//
-//        for (List<MultipartFile> fileList : multipartFiles.values()) {
-//            files.addAll(fileList);
-//        }
-//        if(hasFiles(files)){
-//            validateFiles(files); // 파일 유효성 검사
-//            uploadFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
-//        }
-//        return post.getTitle();
-//    }
-
     /**
      * 게시물 작성 및 파일 저장
      * @param request
@@ -136,6 +111,7 @@ public class PostService {
      * @return
      * @throws IOException
      */
+    @Transactional
     public String insertPost(MultipartHttpServletRequest request, int userNo) throws IOException {
         // POST 내용
         PostDTO post = createPostFromRequest(request, userNo);
@@ -222,44 +198,44 @@ public class PostService {
      * @param files
      */
     private void validateFiles(ArrayList<MultipartFile> files) {
-
-        long maxTotalFileSize = 20 * 1024 * 1024; // 20MB
+        final long maxTotalFileSize = 20 * 1024 * 1024; // 20MB
+        final int maxFileCount = 10;
+        final long maxFileSizePerFile = 5 * 1024 * 1024; // 5MB
         long totalFileSize = 0;
         int fileCount = 0;
 
-        for(MultipartFile file : files) {
-            if(file.isEmpty()) break;
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) break;
 
             long fileSize = file.getSize();
 
             // 파일 크기 검사
-            if (!isFileValidSize(fileSize)) throw new InvalidFileException("5MB 이하의 파일만 업로드 가능합니다.");
+            if (fileSize > maxFileSizePerFile) {
+                throw new InvalidFileException("5MB 이하의 파일만 업로드 가능합니다.");
+            }
+
+            String contentType = file.getContentType();
+            // 파일의 MIME 타입에서 확장자를 추출
+            String fileExtension = getExtensionFromContentType(contentType);
+            // 허용된 확장자 목록
+            List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "gif");
 
             // 파일 확장자 검사
-            if (!isFileValidExtension(file)) throw new InvalidFileException(".jpg, .png, .gif 확장자의 파일만 업로드 가능합니다.");
+            if (!allowedExtensions.contains(fileExtension.toLowerCase())) {
+                throw new InvalidFileException(".jpg, .png, .gif 확장자의 파일만 업로드 가능합니다.");
+            }
 
+            // 파일 개수 검사
             fileCount++;
             totalFileSize += fileSize;
-            // 파일 개수 검사
-            if(fileCount > 10) throw new InvalidFileException("10개까지의 파일만 업로드 가능합니다. 11개부터 파일은 업로드되지 않습니다.");
+            if (fileCount > maxFileCount) {
+                throw new InvalidFileException("10개까지의 파일만 업로드 가능합니다. 11개부터 파일은 업로드되지 않습니다.");
+            }
             // 파일 용량 검사
-            if(totalFileSize > maxTotalFileSize) throw new InvalidFileException("합계 20MB 이상의 파일은 업로드가 불가능합니다.");
+            if (totalFileSize > maxTotalFileSize) {
+                throw new InvalidFileException("합계 20MB 이상의 파일은 업로드가 불가능합니다.");
+            }
         }
-    }
-
-    /**
-     * 파일 확장자 검사
-     * @param file
-     * @return
-     */
-    private boolean isFileValidExtension(MultipartFile file) {
-        String contentType = file.getContentType();
-        // 파일의 MIME 타입에서 확장자를 추출
-        String fileExtension = getExtensionFromContentType(contentType);
-        // 허용된 확장자 목록
-        List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "gif");
-        // 허용된 확장자 목록에 포함되어 있는지 확인
-        return allowedExtensions.contains(fileExtension.toLowerCase());
     }
 
     /**
@@ -268,27 +244,16 @@ public class PostService {
      * @return
      */
     private String getExtensionFromContentType(String contentType) {
-        // MIME 타입에서 확장자 추출
-        if (contentType.equals("image/jpeg")) {
-            return "jpg";
-        } else if (contentType.equals("image/png")) {
-            return "png";
-        } else if (contentType.equals("image/gif")) {
-            return "gif";
-        } else {
-            // 기타 MIME 타입에 대한 처리
-            return "";
+        switch (contentType) {
+            case "image/jpeg":
+                return "jpg";
+            case "image/png":
+                return "png";
+            case "image/gif":
+                return "gif";
+            default:
+                return "";
         }
-    }
-
-    /**
-     * 파일 사이즈 검사
-     * @param fileSize
-     * @return
-     */
-    private boolean isFileValidSize(long fileSize) {
-        long maxFileSizePerFile = 5 * 1024 * 1024; // 5MB
-        return fileSize <= maxFileSizePerFile;
     }
 
     /**
@@ -300,7 +265,6 @@ public class PostService {
      * @throws IOException
      */
     private void saveFiles(int postNo, int userNo, boolean temp, ArrayList<MultipartFile> files) throws IOException {
-//        String uploadPath = "/Users/wm-id002518/newboardfiles/";
 
         for(MultipartFile file : files) {
             String originalFileName = file.getOriginalFilename();
@@ -333,13 +297,12 @@ public class PostService {
      * @return
      * @throws UnauthorizedAccessException
      */
+    @Transactional
     public String updatePost(UpdatePostParam updatePostParam, int postNo, int userNo) throws UnauthorizedAccessException {
         // auth 확인
         if(getPostById(postNo).getUserNo() != userNo){
             throw new UnauthorizedAccessException("타인의 게시물을 수정할 수 없습니다.");
         }
-
-
         // 포스트 내용 저장
         PostDTO post = new PostDTO();
         post.setTitle(updatePostParam.getTitle());
@@ -358,10 +321,11 @@ public class PostService {
      * @param postNo
      * @param userNo
      * @return
-     * @throws BadRequestException
+     * @throws NotFoundException
      * @throws UnauthorizedAccessException
      */
-    public int deletePost(int postNo, int userNo) throws BadRequestException, UnauthorizedAccessException {
+    @Transactional
+    public int deletePost(int postNo, int userNo) throws UnauthorizedAccessException {
         PostDTO post = getPostById(postNo);
         if(post==null){
             throw new NotFoundException("해당 게시글이 존재하지 않습니다.");
@@ -372,6 +336,5 @@ public class PostService {
 
         return postMapper.delete(postNo);
     }
-
 
 }
