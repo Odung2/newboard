@@ -27,13 +27,13 @@
     </select>
 
     <select id="getUserPosts" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.name, post.contents
+        SELECT post.post_no, post.title, user.name, post.contents, post.created_at
         FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 0
     </select>
 
     <select id="getUserTempPosts" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.name, post.contents
-        FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = 1
+        SELECT post.post_no, post.title, user.name, post.contents, post.created_at
+        FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE user.user_no = #{userNo} AND post.is_temp = true
     </select>
 
     <select id="getPostAllByOffset" parameterType="int" resultType="PostDTO">
@@ -51,6 +51,24 @@
             OFFSET #{offset}
         </if>
     </select>
+
+    <select id="getPostNoByUserNoAndTitle" resultType="int">
+        SELECT post_no
+        FROM post
+        WHERE user_no=#{userNo} AND title=#{title}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <select id="getFiles" parameterType="int" resultType="FileDTO">
+        SELECT * FROM file
+        WHERE post_no = ${postNo}
+    </select>
+
+    <insert id="uploadFile" parameterType="FileDTO">
+        INSERT INTO file (post_no, user_no, file_path, file_name, file_ext, is_temp)
+        VALUES (#{postNo}, #{userNo}, #{filePath}, #{fileName}, #{fileExt}, #{isTemp})
+    </insert>
 
     <insert id="insert" parameterType="PostDTO">
         INSERT INTO post (title, user_no, contents, is_temp)

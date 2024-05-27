@@ -14,7 +14,7 @@ public class CommentRes {
     @Schema(description = "사용자 이름")
     public String name;
     @Schema(description = "댓글 내용")
-    public String commentText;
+    public String contents;
     @Schema(description = "만든 일시")
     public LocalDateTime createdAt;
     @Schema(description = "최종 변경 일시")

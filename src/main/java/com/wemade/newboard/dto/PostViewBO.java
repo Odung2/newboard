@@ -19,4 +19,7 @@ public class PostViewBO {
     @Schema(description = "댓글 목록")
     private List<CommentRes> comment;
 
+    @Schema(description = "파일 정보")
+    private List<FileDTO> files;
+
 }

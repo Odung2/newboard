@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Image</title>
+    <style>
+        /* 이미지 컨테이너 스타일 */
+        #imageContainer img {
+            max-width: 100%;  /* 이미지를 컨테이너 너비에 맞게 조정 */
+            height: auto;    /* 비율을 유지하며 높이를 자동 조정 */
+            width: 200px;    /* 고정된 너비를 설정 */
+        }
+    </style>
+</head>
+<body>
+<div id="image-path-container">
+    <input type="text" id="image-path" placeholder="이미지 경로를 입력하세요">
+    <button id="get-btn">검색</button>
+</div>
+<div id="imageContainer"></div>
+
+<script>
+    function displayImage() {
+        const imagePath = document.getElementById('image-path').value.trim();
+
+        if (imagePath !== '') {
+            const imageUrl = 'http://localhost:8080/newboard/get-image?imageName=' + encodeURIComponent(imagePath);
+
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.innerHTML = '';
+            imageContainer.appendChild(imgElement);
+        } else {
+            console.error('Image path is empty');
+        }
+    }
+
+    document.getElementById('get-btn').addEventListener('click', displayImage);
+</script>
+</body>
+</html>

@@ -5,6 +5,8 @@ public class FrkConstants {
     public static final int CD_NOK = 300;
     public static final String FAIL = "Fail";
     public static final String SUCCESS = "SUCCESS";
+    public static final String uploadPath = "/Users/wm-id002518/newboardfiles/";
+
     /**
      * 비밀번호 조건은 다음과 같음
      * 1. 8자 이상 16자 이하
@@ -15,15 +17,8 @@ public class FrkConstants {
      */
     public static final String passwordRegexUnder12 = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\{\\}\\[\\]\\/?.,;:|\\)*~`!^\\-_+<>@#$%&\\\\=\\(\\'\\\"]).{8,11}$";
     public static final String passwordRegex12orMore = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\\{\\}\\[\\]\\/?.,;:|\\)*~`!^\\-_+<>@#$%&\\\\=\\(\\'\\\"]).{12,16}$";
-
-    public static final String findByEmail = "email";
-    public static final String findByUserId = "userId";
-
     public final static int CD_PARAM_ERR = 400;
 
-    public static final int lockUser = 1;
-    public static final int unlockUser = 0;
 
-    public static final int month = 31;
 
 }

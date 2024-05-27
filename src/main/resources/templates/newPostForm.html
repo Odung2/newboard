@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Post Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 400px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="submit"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>새 게시물 작성</h2>
+<!--    <form id="newpost-form" enctype="multipart/form-data" onsubmit="return validateForm()">-->
+    <form id="newpost-form" action="http://localhost:8080/newboard/posts" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+
+    <!--        <form id="newpost-form" action="http://localhost:8080/newboard/posts" method="post">-->
+        <label for="title">제목:</label><br>
+        <input type="text" id="title" name="title" required><br>
+
+        <!-- 파일 업로드 -->
+        <label for="uploadFileMulti">첨부 파일:</label><br>
+        <input type="file" name="uploadFileMulti" id="uploadFileMulti" multiple><br><br>
+
+        <label for="contents">내용:</label><br>
+        <textarea id="contents" name="contents" rows="4" required></textarea><br>
+
+<!--        <input type="hidden" name="isTemp" value="0">-->
+        <input type="checkbox" id="isTemp" name="isTemp" value="1">
+        <label for="isTemp">임시 저장</label><br><br>
+
+
+        <!-- 제출 및 파일 업로드 버튼 -->
+        <input type="submit" value="Submit">
+    </form>
+</div>
+    <script>
+
+        function validateForm() {
+            var title = document.getElementById('title').value.trim();
+            var contents = document.getElementById('contents').value.trim();
+            var isTemp = document.getElementById('isTemp').checked;
+            var files = document.getElementById('uploadFileMulti').files;
+            var totalSize = 0;
+            var maxFileSize = 5 * 1024 * 1024; // 5MB
+            var maxTotalSize = 20 * 1024 * 1024; // 20MB
+            var maxFileCount = 10;
+
+            // Validate Title
+            if (title === '') {
+                alert('제목을 입력해주세요.');
+                return false;
+            }
+            if (title.length < 1 || title.length > 50) {
+                alert('제목은 1자 이상 50자 이하만 가능합니다.');
+                return false;
+            }
+
+            // Validate Contents
+            if (contents === '') {
+                alert('내용을 입력해주세요.');
+                return false;
+            }
+            if (contents.length < 1 || contents.length > 10000) {
+                alert('내용은 1자 이상 1만자 이하만 가능합니다.');
+                return false;
+            }
+
+            // Validate Files
+            if (files.length > maxFileCount) {
+                alert('최대 10개의 파일만 업로드할 수 있습니다.');
+                return false;
+            }
+
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].size > maxFileSize) {
+                    alert('각 파일은 최대 5MB를 초과할 수 없습니다.');
+                    return false;
+                }
+                totalSize += files[i].size;
+            }
+
+            if (totalSize > maxTotalSize) {
+                alert('총 파일 크기는 최대 20MB를 초과할 수 없습니다.');
+                return false;
+            }
+
+            // 모든 검증을 통과하면 true를 반환하여 서버로 전송합니다.
+            document.getElementById("newpost-form").addEventListener("submit", function(event) {
+                event.preventDefault(); // 기본 submit 동작을 막습니다.
+
+                var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+                console.log(formData);
+                var jsonObject = {};
+                formData.forEach(function(value, key){
+                    console.log(value);
+                    console.log(key);
+                    jsonObject[key] = value;
+                });
+
+                var cookies = document.cookie.split(';');
+                var accessToken = null;
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.startsWith("accessToken=")) {
+                        accessToken = cookie.substring("accessToken=".length, cookie.length);
+                        // console.log(accessToken);
+                        break;
+                    }
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "http://localhost:8080/newboard/posts", true);
+                xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        var responseJson = JSON.parse(xhr.responseText);
+                        if(responseJson.resultCode !== 0) {
+                            let errorMessage = responseJson.resultMessage;
+                            if (responseJson.data && responseJson.data.message) {
+                                errorMessage += "\n" + responseJson.data.message;
+                            }else if(responseJson.data){
+                                errorMessage += "\n" + responseJson.data;
+                            }
+                            alert(errorMessage);
+                        }else{
+                            let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+                            alert(successMessage);
+                        }
+                    }
+                };
+
+                xhr.send(formData); // JSON 형식으로 데이터를 서버로 전송합니다.
+            });
+
+        }
+
+    </script>
+</body>
+</html>

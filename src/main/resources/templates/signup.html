@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,14 +51,57 @@
 <body>
 <div class="container">
     <h2>회원가입</h2>
-    <form action="http://localhost:8080/newboard/public/sign-up" method="post">
+<!--    <form id="signup-form">-->
+    <form th:action="@{/newboard/public/sign-up}" method="post" id="signup-form">
+
         <input type="text" name="userId" placeholder="아이디 (2자 이상, 20자 이하)" required>
         <input type="text" name="name" placeholder="이름 (한글만 입력)" required>
         <input type="email" name="email" placeholder="이메일" required>
         <input type="tel" name="phone" placeholder="전화번호 (숫자만 입력)" required>
         <input type="password" name="password" placeholder="비밀번호 (8자 이상, 16자 이하, 대소문자/특수문자/숫자 포함)" required>
         <input type="submit" value="가입하기">
-    </form>
+    </form><br>
+    <a href="http://localhost:8080/newboard/public/login"><button>로그인하기</button></a>
+
 </div>
+
+<script>
+    document.getElementById("signup-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 submit 동작을 막습니다.
+
+        var formData = new FormData(this); // 폼 데이터를 가져옵니다.
+
+        var jsonObject = {};
+        formData.forEach(function(value, key){
+            jsonObject[key] = value;
+        });
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "[[@{http://localhost:8080/newboard/public/sign-up}]]", true);
+
+        // xhr.open("POST", "http://localhost:8080/newboard/public/sign-up", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var responseJson = JSON.parse(xhr.responseText);
+                if(responseJson.resultCode !== 0) {
+                    let errorMessage = responseJson.resultMessage;
+                    if (responseJson.data && responseJson.data.message) {
+                        errorMessage += "\n" + responseJson.data.message;
+                    }else if(responseJson.data){
+                        errorMessage += "\n" + responseJson.data;
+                    }
+                    alert(errorMessage);
+                }else{
+                    let successMessage = responseJson.resultMessage +"\n"+ responseJson.data;
+                    alert(successMessage);
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
+    });
+</script>
 </body>
 </html>

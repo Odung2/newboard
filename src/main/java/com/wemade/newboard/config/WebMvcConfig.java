@@ -17,11 +17,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**") //모든 경로 허락(모든 컨트롤러)
-                .allowedOrigins("http://localhost:5173") // 이 Origin이면 허락
-                .allowedOrigins("http://localhost:63342")
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // 이 메소드면 허락
+                .allowedOrigins("http://localhost:63342") // 이 Origin이면 허락
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 이 메소드면 허락
                 .allowedHeaders("*") //
-//                .allowCredentials(true) //쿠키요청을 여부, 보안상 이슈가 발생할 수 있음
                 .maxAge(MAX_AGE_SECS); // 원하는 시간만큼 pre-flight 요청에 대한 응답을 브라우저에서 캐싱하는 시간
     }
 
@@ -29,9 +27,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/newboard/**")
-                .excludePathPatterns("/newboard/public/**") // signup, login, refresh-token, {id}
-                .excludePathPatterns("/newboard/posts/public/**") // post/public/** 관련은 제외
-//                .excludePathPatterns("/newboard/upload")
+                .excludePathPatterns("/newboard/public/**")// signup, login, refresh-token, {id}
+                .excludePathPatterns("/newboard/get-image")
+                .excludePathPatterns("/newboard/find-password")
         ;
 
     }

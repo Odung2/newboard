@@ -7,36 +7,31 @@ import com.wemade.newboard.mapper.UserMapper;
 import com.wemade.newboard.param.FindPasswordParam;
 import com.wemade.newboard.param.SignupParam;
 import com.wemade.newboard.param.UpdateUserParam;
-import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.MyInfoRes;
-import com.wemade.newboard.response.PublicUserInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static com.wemade.newboard.dto.FrkConstants.findByEmail;
-import static com.wemade.newboard.dto.FrkConstants.findByUserId;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserMapper userMapper;
+    private final EmailService emailService;
 
     /**
-     * DB에 저장된 유저 정보가 존재하는지 확인하고, 유저 정보를 반환
-     * @param userNo 또는 userId
-     * @return user
-     * @throws NotFoundException // 유저 정보가 존재하지 않음.
+     * 유저 정보
+      * @param userId
+     * @return
      */
-
     public UserDTO getUser(String userId) {
         UserDTO user = userMapper.getUserByUserId(userId);
         if (user == null) {
@@ -45,6 +40,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 유저 정보
+     * @param userNo
+     * @return
+     */
     public UserDTO getUser(int userNo) {
         UserDTO user = userMapper.getUserByUserNo(userNo);
         if (user == null) {
@@ -53,6 +53,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 유저 정보
+     * @param email
+     * @return
+     */
     public UserDTO getUserByEmail(String email) {
         UserDTO user = userMapper.getUserByEmail(email);
         if (user == null) {
@@ -61,29 +66,52 @@ public class UserService {
         return user;
     }
 
-    public String findPassword(FindPasswordParam findPasswordParam) {
-        if( !(findPasswordParam.getEmail().equals(userMapper.getEmail(findPasswordParam.getUserId())))){
+    /**
+     * 새로운 비밀번호 발급(비밀번호 찾기)
+     * @param findPasswordParam
+     * @return
+     */
+    public String findPassword(FindPasswordParam findPasswordParam) throws NoSuchAlgorithmException {
+        UserDTO user = userMapper.getUserByUserId(findPasswordParam.getUserId());
+
+        // 저장된 이메일과 입력된 이메일이 다를 시
+        if( !(findPasswordParam.getEmail().equals(user.getEmail()))){
             throw new NotFoundException("해당되는 이메일이 아닙니다.");
         }
 
-        //FIXME: 새로운 비밀번호(랜덤) 암호화 후 업데이트, 그리고 이메일로 발송하는 로직
+        // 임시 비밀번호 발급
+        String tempPassword = generateTemporaryPassword();
+        user.setPassword(plainToSha256(tempPassword));
 
-        return ";";
+        // 비밀번호 유효성 검사를 하지 않고 바로 수정함.
+        userMapper.update(user);
+
+        // 임시 비밀번호를 메일로 발송
+        emailService.sendEmail(user.getEmail(), "Password Reset", "Your new password is: " + tempPassword);
+
+        return "이메일로 임시 비밀번호를 발송했습니다.";
+    }
+
+    private String generateTemporaryPassword() {
+        return UUID.randomUUID().toString().substring(0, 12);
     }
 
     /**
      * 새로운 사용자를 데이터베이스에 삽입합니다.
-     *
      * @param signupParam 사용자 정보
      * @return 삽입된 사용자 정보
      * @throws Exception 비밀번호 검증 실패 시 예외 발생
      */
+    @Transactional
     public String insertUser(SignupParam signupParam) throws NoSuchAlgorithmException {
-        checkDuplicateUser(signupParam.getUserId());
-        checkDuplicateEmail(signupParam.getEmail());
-        checkNewPwValid(signupParam.getPassword());
+
+        // 중복 아이디, 이메일 체크
+        validateDuplicateUser(signupParam.getUserId());
+        validateDuplicateEmail(signupParam.getEmail());
+        // 비밀번호 유효성 체크
+        validatePassword(signupParam.getPassword());
         signupParam.setPassword(plainToSha256(signupParam.getPassword()));
-        //FIXME: userDTO에 옮겨 심는게 아니라 그냥 signup param 그대로 넣어도 문제 없지 않나?
+
         userMapper.insert(signupParam);
         return signupParam.getName();
     }
@@ -91,21 +119,25 @@ public class UserService {
 
     /**
      * 주어진 ID의 사용자 정보를 업데이트합니다.
-     *
      * @param updateUserParam 사용자 정보
      * @param userNo          사용자 ID
      * @return 업데이트된 사용자 정보
      */
+    @Transactional
     public String updateUser(UpdateUserParam updateUserParam, int userNo) throws NoSuchAlgorithmException {
-        //NotFoundException 체크
+
+        // 존재하는 유저인지 검사
         getUser(userNo);
+
+        // 비밀번호를 바꾸려고 하는 경우
         if (updateUserParam.getPassword() != null) {
-            checkNewPwValid(updateUserParam.getPassword());
+            // 비밀번호 유효성 체크
+            validatePassword(updateUserParam.getPassword());
+            // 비밀번호 암호화 - sha256
             updateUserParam.setPassword(plainToSha256(updateUserParam.getPassword()));
         }
 
         UserDTO user = new UserDTO(updateUserParam, userNo);
-
         userMapper.update(user);
         return user.getName();
     }
@@ -115,12 +147,19 @@ public class UserService {
      * @param userNo 삭제할 사용자 ID
      * @return 삭제 결과
      */
-    public int deleteUser(int userNo){
-        // NotFoundException 체크
+    @Transactional
+    public int deleteUser(int userNo) {
+        // 존재하지 않는 유저를 없애려고 하는지 검사
         getUser(userNo);
         return userMapper.delete(userNo);
     }
-    public void checkDuplicateUser(String userId){
+
+    /**
+     * 중복 유저 확인
+     * @param userId
+     */
+    public void validateDuplicateUser(String userId){
+        // 중복 유저아이디 검사
         try {
             getUser(userId);
         } catch (NotFoundException e){
@@ -129,7 +168,12 @@ public class UserService {
         throw new DuplicateKeyException("중복된 아이디입니다. 다른 아이디를 입력해주세요.");
     }
 
-    public void checkDuplicateEmail(String email){
+    /**
+     * 중복 이메일 확인
+     * @param email
+     */
+    public void validateDuplicateEmail(String email){
+        // 중복 이메일 검사
         try{
             getUserByEmail(email);
         }catch (NotFoundException e){
@@ -168,19 +212,23 @@ public class UserService {
      * @return 검사 결과
      * @throws Exception 비밀번호 길이 또는 형식 불일치로 인한 예외 발생
      */
-    public boolean checkNewPwValid(String password) {
-
+    public boolean validatePassword(String password) {
+        // 12자 미만의 비밀번호일 시 유효성 체크(정규표현식 검사)
         if(password.length() < 12 && Pattern.matches(FrkConstants.passwordRegexUnder12, password)) return true;
+        // 12자 이상의 비밀번호일 시 유효성 체크(정규표현식 검사)
         if(Pattern.matches(FrkConstants.passwordRegex12orMore, password)) return true;
 
         throw new PasswordRegexException("비밀번호는 12자 미만의 경우 영문 대문자, 소문자, 숫자, 특수문자의 조합으로, 12자 이상인 경우 영문, 숫자, 특수문자의 조합으로 입력해주세요.");
     }
 
-    public PublicUserInfoRes getPublicUser(int userNo){
-        return new PublicUserInfoRes(getUser(userNo));
-    }
-
+    /**
+     * 개인정보 조회
+     * @param userNo
+     * @return
+     */
     public MyInfoRes getPrivateUser(int userNo){
+
+        // 비밀번호를 제외하고 반환
         return new MyInfoRes(getUser(userNo));
     }
 

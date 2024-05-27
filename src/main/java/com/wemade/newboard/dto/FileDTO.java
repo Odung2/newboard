@@ -1,8 +1,13 @@
 package com.wemade.newboard.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class fileDTO {
+@Data
+@NoArgsConstructor
+@Schema(description = "파일 정보를 나타내는 DTO")
+public class FileDTO {
     @Schema(description = "파일 번호")
     public int fileNo;
 

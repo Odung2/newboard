@@ -3,6 +3,7 @@ package com.wemade.newboard.param;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class InsertPostParam {
     @Schema(description = "내용")
     private String contents;
 
+    @Nullable
     @Schema(description = "임시 저장 여부")
     private boolean isTemp;
 
