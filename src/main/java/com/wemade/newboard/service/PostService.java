@@ -48,7 +48,7 @@ public class PostService {
      * @return
      */
     public PostViewBO getPostViewById(int postNo){
-        //FIXME: 파일도 불러와야 함...
+        // 게시글 상세 보기 정보
         PostViewBO postView = new PostViewBO();
         postView.setPost(postMapper.getDetailPostRes(postNo));
         postView.setComment(commentService.getCommentRes(postNo));
@@ -137,11 +137,15 @@ public class PostService {
      * @throws IOException
      */
     public String insertPost(MultipartHttpServletRequest request, int userNo) throws IOException {
+        // POST 내용
         PostDTO post = createPostFromRequest(request, userNo);
+        // POST 저장 후 해당 postNo
         int postNo = savePostAndGetId(post);
-
+        // Files 내용
         ArrayList<MultipartFile> files = extractFilesFromRequest(request);
+        // 만약 Files 가 있다면
         if (hasFiles(files)) {
+            // 유효성 검사 후 저장
             validateAndSaveFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
         }
         return post.getTitle();
@@ -236,9 +240,9 @@ public class PostService {
 
             fileCount++;
             totalFileSize += fileSize;
-
+            // 파일 개수 검사
             if(fileCount > 10) throw new InvalidFileException("10개까지의 파일만 업로드 가능합니다. 11개부터 파일은 업로드되지 않습니다.");
-
+            // 파일 용량 검사
             if(totalFileSize > maxTotalFileSize) throw new InvalidFileException("합계 20MB 이상의 파일은 업로드가 불가능합니다.");
         }
     }
@@ -301,17 +305,21 @@ public class PostService {
         for(MultipartFile file : files) {
             String originalFileName = file.getOriginalFilename();
             UUID uuid = UUID.randomUUID();
+            // 파일 이름 생성
             String savedFileName = uuid.toString() + "_" + originalFileName;
+
+            // 파일 로컬에 저장
             File destFile = new File(uploadPath + savedFileName);
             file.transferTo(destFile);
 
+            // 폼에 파일 정보 저장
             FileDTO fileform = new FileDTO();
             fileform.setPostNo(postNo);
             fileform.setUserNo(userNo);
             fileform.setFileExt(originalFileName.substring(originalFileName.lastIndexOf(".")));
             fileform.setFileName(originalFileName);
 //            fileform.setFilePath(uploadPath + savedFileName); // 보안 이슈로
-            fileform.setFilePath(savedFileName);
+            fileform.setFilePath(savedFileName);    // 보안 이슈로 파일 이름만 사용
             fileform.setTemp(temp);
             postMapper.uploadFile(fileform);
         }
@@ -326,11 +334,13 @@ public class PostService {
      * @throws UnauthorizedAccessException
      */
     public String updatePost(UpdatePostParam updatePostParam, int postNo, int userNo) throws UnauthorizedAccessException {
-
+        // auth 확인
         if(getPostById(postNo).getUserNo() != userNo){
             throw new UnauthorizedAccessException("타인의 게시물을 수정할 수 없습니다.");
         }
 
+
+        // 포스트 내용 저장
         PostDTO post = new PostDTO();
         post.setTitle(updatePostParam.getTitle());
         post.setContents(updatePostParam.getContents());

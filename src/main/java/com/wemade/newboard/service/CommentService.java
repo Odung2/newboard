@@ -76,18 +76,15 @@ public class CommentService {
      * @return 데이터베이스에 업데이트된 댓글 객체
      */
     public String updateComment(UpdateCommentParam updateCommentParam, int commentId, int id) throws UnauthorizedAccessException {
-
-        if(getCommentByCommentId(commentId).getUserNo() != id){ // 본인이 쓴 댓글이 아닐 경우
+        // 본인이 쓴 댓글이 아닐 경우
+        if(getCommentByCommentId(commentId).getUserNo() != id){
             throw new UnauthorizedAccessException("타인의 댓글을 수정할 수 없습니다.");
         }
 
         CommentDTO comment = new CommentDTO();
         comment.setContents(updateCommentParam.getContents());
-//        comment.setUserId(updateCommentParam.getUserId());
-//        comment.setPostId(updateCommentParam.getPostId());
         comment.setUserNo(id);
         comment.setCommentNo(commentId);
-        //FIXME auditListener로 고쳐야 함
         comment.setUpdatedBy(id);
 
         commentMapper.update(comment);

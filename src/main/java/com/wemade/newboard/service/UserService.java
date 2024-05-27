@@ -72,21 +72,23 @@ public class UserService {
      */
     public String findPassword(FindPasswordParam findPasswordParam) throws NoSuchAlgorithmException {
         UserDTO user = userMapper.getUserByUserId(findPasswordParam.getUserId());
+
+        // 저장된 이메일과 입력된 이메일이 다를 시
         if( !(findPasswordParam.getEmail().equals(user.getEmail()))){
             throw new NotFoundException("해당되는 이메일이 아닙니다.");
         }
 
-        //FIXME: 새로운 비밀번호(랜덤) 암호화 후 업데이트, 그리고 이메일로 발송하는 로직
-
+        // 임시 비밀번호 발급
         String tempPassword = UUID.randomUUID().toString().substring(0, 12);
         user.setPassword(plainToSha256(tempPassword));
 
         // 비밀번호 유효성 검사를 하지 않고 바로 수정함.
         userMapper.update(user);
 
+        // 임시 비밀번호를 메일로 발송
         emailService.sendEmail(user.getEmail(), "Password Reset", "Your new password is: " + tempPassword);
 
-        return ";";
+        return "이메일로 임시 비밀번호를 발송했습니다.";
     }
 
     /**
@@ -96,10 +98,14 @@ public class UserService {
      * @throws Exception 비밀번호 검증 실패 시 예외 발생
      */
     public String insertUser(SignupParam signupParam) throws NoSuchAlgorithmException {
+
+        // 중복 아이디, 이메일 체크
         checkDuplicateUser(signupParam.getUserId());
         checkDuplicateEmail(signupParam.getEmail());
+        // 비밀번호 유효성 체크
         checkNewPwValid(signupParam.getPassword());
         signupParam.setPassword(plainToSha256(signupParam.getPassword()));
+
         userMapper.insert(signupParam);
         return signupParam.getName();
     }
@@ -112,9 +118,11 @@ public class UserService {
      * @return 업데이트된 사용자 정보
      */
     public String updateUser(UpdateUserParam updateUserParam, int userNo) throws NoSuchAlgorithmException {
+
         //NotFoundException 체크
         getUser(userNo);
         if (updateUserParam.getPassword() != null) {
+            // 비밀번호 유효성 체크
             checkNewPwValid(updateUserParam.getPassword());
             updateUserParam.setPassword(plainToSha256(updateUserParam.getPassword()));
         }

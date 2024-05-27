@@ -31,7 +31,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController extends BaseController{
     private final UserService userService;
-
     private final AuthService authService;
     private final PostService postService;
     private final CommentService commentService;
@@ -62,6 +61,7 @@ public class UserController extends BaseController{
     public String showMyPage() {
         return "profileEditingPage";
     }
+
     /**
      * 회원가입
      * @param signupParam 등록할 사용자의 데이터를 담은 DTO(userId, nickname, password)
@@ -83,7 +83,7 @@ public class UserController extends BaseController{
     @Operation(summary = "로그인", description = "로그인을 처리합니다.")
     @PostMapping("/public/login")
     public ResponseEntity<ApiResponse<TokensDTO>> login(
-            @RequestBody @Valid LoginParam loginParam) throws Exception{
+            @RequestBody @Valid LoginParam loginParam) throws Exception {
         return ok(authService.loginAndIssueTokens(loginParam));
     }
 
@@ -95,6 +95,7 @@ public class UserController extends BaseController{
     public String showFindPassword() {
         return "findPassword";
     }
+
     /**
      * 비밀번호 찾기
      * @param findPasswordParam 새 비밀번호를 발급받기 위한 유저 정보

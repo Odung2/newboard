@@ -168,20 +168,20 @@ public class PostController extends BaseController{
         return ok(postService.deletePost(postNo, userNo));
     }
 
-    public ResponseEntity<Resource> showImage(@RequestParam String imageName) throws UnsupportedEncodingException {
-
-        String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8.name());
-
-        // 이미지 파일을 Resource 객체로 로드
-        Resource resource = new FileSystemResource(uploadPath+decodedImageName);
-
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-        // 이미지 파일을 응답으로 반환
-        return ResponseEntity.ok()
-             .contentType(MediaType.IMAGE_PNG) // 이미지 타입에 따라 변경
-             .body(resource);
-    }
+//    public ResponseEntity<Resource> showImage(@RequestParam String imageName) throws UnsupportedEncodingException {
+//
+//        String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8.name());
+//
+//        // 이미지 파일을 Resource 객체로 로드
+//        Resource resource = new FileSystemResource(uploadPath+decodedImageName);
+//
+//        if (!resource.exists()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//        // 이미지 파일을 응답으로 반환
+//        return ResponseEntity.ok()
+//             .contentType(MediaType.IMAGE_PNG) // 이미지 타입에 따라 변경
+//             .body(resource);
+//    }
 
 }
