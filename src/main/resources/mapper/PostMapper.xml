@@ -65,6 +65,11 @@
         WHERE post_no = ${postNo}
     </select>
 
+    <delete id="deleteFile" parameterType="int">
+        DELETE FROM file
+        WHERE file_no = ${fileNo}
+    </delete>
+
     <insert id="uploadFile" parameterType="FileDTO">
         INSERT INTO file (post_no, user_no, file_path, file_name, file_ext, is_temp)
         VALUES (#{postNo}, #{userNo}, #{filePath}, #{fileName}, #{fileExt}, #{isTemp})

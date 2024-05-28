@@ -121,8 +121,14 @@ public class PostService {
         ArrayList<MultipartFile> files = extractFilesFromRequest(request);
         // 만약 Files 가 있다면
         if (hasFiles(files)) {
-            // 유효성 검사 후 저장
-            validateAndSaveFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
+            try {
+                //유효성 검사 후 저장
+                validateAndSaveFiles(postNo, userNo, Boolean.parseBoolean(request.getParameter("isTemp")), files);
+            } catch (IOException e) {
+                // 파일 업로드 실패 시 클린업 수행
+                cleanupFiles(postNo);
+                throw new IOException("파일 업로드 중 오류가 발생했습니다.", e);
+            }
         }
         return post.getTitle();
     }
@@ -265,28 +271,50 @@ public class PostService {
      * @throws IOException
      */
     private void saveFiles(int postNo, int userNo, boolean temp, ArrayList<MultipartFile> files) throws IOException {
+        List<String> savedFileNames = new ArrayList<>();
+        try {
+            for (MultipartFile file : files) {
+                String originalFileName = file.getOriginalFilename();
+                UUID uuid = UUID.randomUUID();
+                String savedFileName = uuid + "_" + originalFileName;
+                File destFile = new File(uploadPath + savedFileName);
 
-        for(MultipartFile file : files) {
-            String originalFileName = file.getOriginalFilename();
-            UUID uuid = UUID.randomUUID();
-            // 파일 이름 생성
-            String savedFileName = uuid.toString() + "_" + originalFileName;
+                // 파일 로컬에 저장
+                file.transferTo(destFile);
+                savedFileNames.add(savedFileName);
 
-            // 파일 로컬에 저장
-            File destFile = new File(uploadPath + savedFileName);
-            file.transferTo(destFile);
-
-            // 폼에 파일 정보 저장
-            FileDTO fileform = new FileDTO();
-            fileform.setPostNo(postNo);
-            fileform.setUserNo(userNo);
-            fileform.setFileExt(originalFileName.substring(originalFileName.lastIndexOf(".")));
-            fileform.setFileName(originalFileName);
-//            fileform.setFilePath(uploadPath + savedFileName); // 보안 이슈로
-            fileform.setFilePath(savedFileName);    // 보안 이슈로 파일 이름만 사용
-            fileform.setTemp(temp);
-            postMapper.uploadFile(fileform);
+                //파일 DB에 저장
+                FileDTO fileform = new FileDTO();
+                fileform.setPostNo(postNo);
+                fileform.setUserNo(userNo);
+                fileform.setFileExt(originalFileName.substring(originalFileName.lastIndexOf(".")));
+                fileform.setFileName(originalFileName);
+                fileform.setFilePath(savedFileName);
+                fileform.setTemp(temp);
+                postMapper.uploadFile(fileform);
+            }
+        } catch (IOException e) {
+            // 파일 업로드 실패 시 이미 업로드된 파일도 삭제
+            for (String savedFileName : savedFileNames) {
+                File file = new File(uploadPath + savedFileName);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+            throw e;
         }
+    }
+
+    private void cleanupFiles(int postNo) {
+        List<FileDTO> files = postMapper.getFiles(postNo);
+        for (FileDTO file : files) {
+            File fileToDelete = new File(uploadPath + file.getFilePath());
+            if (fileToDelete.exists()) {
+                fileToDelete.delete();
+            }
+            postMapper.deleteFile(file.getFileNo());
+        }
+        postMapper.delete(postNo);
     }
 
     /**
@@ -307,7 +335,6 @@ public class PostService {
         PostDTO post = new PostDTO();
         post.setTitle(updatePostParam.getTitle());
         post.setContents(updatePostParam.getContents());
-//        post.setFileData(updatePostParam.getFileData());
         post.setPostNo(postNo);
         post.setUpdatedBy(userNo);
         post.setIsTemp(updatePostParam.isTemp());
@@ -333,7 +360,6 @@ public class PostService {
         if(post.getUserNo() != userNo){
             throw new UnauthorizedAccessException("타인의 게시물을 수정할 수 없습니다.");
         }
-
         return postMapper.delete(postNo);
     }
 
