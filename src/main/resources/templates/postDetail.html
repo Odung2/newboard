@@ -94,6 +94,22 @@
             margin-right: 10px;
         }
 
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-comment {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+
     </style>
 </head>
 <body>
@@ -109,6 +125,11 @@
     <div class="post-detail">작성자: <span id="post-name"></span></div>
     <div class="post-detail">작성일: <span id="post-created-at"></span></div>
     <div class="post-contents" id="post-contents"></div>
+</div>
+<div class="comment-input">
+    <h3>댓글 작성</h3>
+    <textarea id="comment-contents" rows="4" cols="50" placeholder="댓글을 입력하세요"></textarea>
+    <button id="submit-comment">댓글 등록</button>
 </div>
 
 <div class="comment-list" id="comment-list">
@@ -197,7 +218,7 @@
         return postNo;
     }
 
-    window.onload = function() {
+    window.onload = function () {
         let postNo = getPostNoFromURL();
         fetchPosts(postNo);
     }
@@ -210,9 +231,21 @@
             const commentContainer = document.createElement("div");
             commentContainer.className = "comment-container";
 
+            const commentHeader = document.createElement("div");
+            commentHeader.className = "comment-header";
+
             const commentTitle = document.createElement("div");
             commentTitle.className = "comment-title";
             commentTitle.innerText = `Comment by ${comment.name}`;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-comment";
+            deleteButton.innerText = "삭제";
+            deleteButton.setAttribute("data-comment-id", comment.commentNo);
+            deleteButton.addEventListener("click", () => deleteComment(comment.commentNo));
+
+            commentHeader.appendChild(commentTitle);
+            commentHeader.appendChild(deleteButton);
 
             const commentCreatedAt = document.createElement("div");
             commentCreatedAt.className = "comment-detail";
@@ -222,7 +255,7 @@
             commentContents.className = "comment-contents";
             commentContents.innerText = comment.contents;
 
-            commentContainer.appendChild(commentTitle);
+            commentContainer.appendChild(commentHeader);
             commentContainer.appendChild(commentCreatedAt);
             commentContainer.appendChild(commentContents);
 
@@ -230,10 +263,78 @@
         });
     }
 
+
     document.getElementById("load-more-comments").addEventListener("click", () => {
         commentsToShow += 3;
         displayComments(commentsData);
     });
+
+    function insertComment(postNo, contents) {
+        const accessToken = getCookie('accessToken');
+        // const userNo = getUserNo(); // Assume this function gets the user's number
+
+        fetch(`http://localhost:8080/newboard/comments/${postNo}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({ contents })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.resultCode !== 0) {
+                    let errorMessage = data.resultMessage;
+                    if (data.data && data.data.message) {
+                        errorMessage += "\n" + data.data.message;
+                    } else if (data.data) {
+                        errorMessage += "\n" + data.data;
+                    }
+                    alert(errorMessage);
+                } else {
+                    alert("댓글이 등록되었습니다.");
+                    window.location.reload(); // 페이지를 새로 고침하여 댓글을 다시 로드
+
+                }
+            })
+            .catch(error => console.error('Error posting comment:', error));
+    }
+
+    function deleteComment(commentNo) {
+        const accessToken = getCookie('accessToken');
+
+        fetch(`http://localhost:8080/newboard/comments/${commentNo}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.resultCode !== 0) {
+                    let errorMessage = data.resultMessage;
+                    if (data.data && data.data.message) {
+                        errorMessage += "\n" + data.data.message;
+                    } else if (data.data) {
+                        errorMessage += "\n" + data.data;
+                    }
+                    alert(errorMessage);
+                } else {
+                    alert("댓글이 삭제되었습니다.");
+                    window.location.reload(); // 페이지를 새로 고침하여 댓글을 다시 로드
+                }
+            })
+            .catch(error => console.error('Error deleting comment:', error));
+    }
+
+    document.getElementById("submit-comment").addEventListener("click", () => {
+        const commentContents = document.getElementById("comment-contents").value;
+        const postNo = getPostNoFromURL();
+        insertComment(postNo, commentContents);
+        document.getElementById("comment-contents").value = ''; // Clear the textarea
+    });
+
 
     function getCookie(name) {
         var cookieValue = null;
