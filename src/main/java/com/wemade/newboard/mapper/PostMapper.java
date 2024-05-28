@@ -21,7 +21,7 @@ public interface PostMapper extends BaseMapper {
     List<PublicPostRes> searchPosts(@Param("keyword") String keyword, @Param("offset") int currpage, @Param("pagesize") int pagesize );
 
     List<FileDTO> getFiles(int postNo);
-
+    int deleteFile(int fileNo);
     int uploadFile(FileDTO file);
     int getPostNoByUserNoAndTitle(@Param("userNo") int userNo, @Param("title") String title );
     int insert(PostDTO post);

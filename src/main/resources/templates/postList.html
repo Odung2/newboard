@@ -48,8 +48,10 @@
     <h1>게시글 목록</h1>
 
     <div id="search-container">
-        <input type="text" id="search-box" placeholder="검색어를 입력하세요">
-        <button id="search-btn">검색</button>
+        <form id="search-form">
+            <input type="text" id="search-box" placeholder="검색어를 입력하세요">
+            <input type="submit" id="search-btn" value="검색">
+        </form>
     </div>
 
     <table>
@@ -79,12 +81,12 @@
     // const postsPerPage = 3; // 페이지당 게시글 수
     let currentPage = 1; // 현재 페이지 번호
     let searchKeyword ='';
-    const searchButton = document.getElementById('search-btn');
-    // 검색 버튼 클릭 이벤트 리스너 등록
-    searchButton.addEventListener('click', () => {
+    const searchForm = document.getElementById('search-form');
+    // 폼 submit 이벤트 리스너 등록
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // 폼 제출 기본 동작 막기
         // 검색어 가져오기
         searchKeyword = document.getElementById('search-box').value;
-
         // 검색어가 비어있지 않은 경우에만 backend와 통신하여 검색 결과 가져오기
         if (searchKeyword.trim() !== '') {
             currentPage = 1; // 검색할 때 페이지를 초기화
