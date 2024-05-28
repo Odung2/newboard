@@ -158,7 +158,6 @@
         document.getElementById("post-created-at").innerText = new Date(postData.post.createdAt).toLocaleString();
         document.getElementById("post-contents").innerText = postData.post.contents;
 
-        // Populate HTML with file names
         const fileList = document.getElementById("file-list");
         const filePreviewContainer = document.getElementById("file-preview");
         fileList.innerHTML = ''; // Clear current file list
@@ -173,7 +172,7 @@
             filePreview.className = "file-preview-item";
 
             // 이미지 파일인 경우 이미지를 표시
-            if (file.fileExt === ".png" || file.fileExt === ".jpg" || file.fileExt === ".jpeg" || file.fileExt === ".gif") {
+            if (['.png', '.jpg', '.jpeg', '.gif'].includes(file.fileExt.toLowerCase())) {
                 const img = document.createElement("img");
                 const encodedImageName = encodeURIComponent(file.filePath); // Encode the file path
                 img.src = `http://localhost:8080/newboard/get-image?imageName=${encodedImageName}`;
@@ -188,6 +187,7 @@
             filePreviewContainer.appendChild(filePreview);
         });
     }
+
 
     function getPostNoFromURL() {
         const url = new URL(window.location.href);

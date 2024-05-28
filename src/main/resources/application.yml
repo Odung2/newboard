@@ -22,10 +22,10 @@ spring:
       host: localhost
       port: 6379
   mail:
-    host: smtp
+    host: smtp.gmail.com
     port: 465
     username: kaimjy@wemade.com
-    password: # secret
+    password: qlalfqjsgh12#$
     properties:
       mail:
         smtp:
