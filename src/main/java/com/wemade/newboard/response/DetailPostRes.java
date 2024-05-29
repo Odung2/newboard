@@ -19,4 +19,6 @@ public class DetailPostRes {
     private String contents;
     @Schema(description = "작성일")
     private LocalDateTime createdAt;
+    @Schema(description = "수정일")
+    private LocalDateTime updatedAt;
 }

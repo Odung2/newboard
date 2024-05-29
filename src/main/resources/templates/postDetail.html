@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -92,6 +93,11 @@
             max-width: 100px;
             max-height: 100px;
             margin-right: 10px;
+            transition: transform 0.2s; /* Animation */
+        }
+
+        .file-preview img:hover {
+            transform: scale(5); /* Zoom in */
         }
 
         .comment-header {
@@ -108,11 +114,43 @@
             cursor: pointer;
             border-radius: 3px;
         }
-
-
+        .navbar-custom {
+            background-color: #343a40;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #d4d4d4;
+        }
     </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="#">Newboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item ">
+                <a class="nav-link" href="list">게시판 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../show-my-page">프로필</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">설정</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <button class="btn btn-danger nav-link" id="logout-button">로그아웃</button>
+            </li>
+        </ul>
+    </div>
+</nav>
 
 <div class="post-container">
     <div class="post-title" id="post-title"></div>
@@ -124,6 +162,7 @@
 
     <div class="post-detail">작성자: <span id="post-name"></span></div>
     <div class="post-detail">작성일: <span id="post-created-at"></span></div>
+    <div class="post-detail">수정일: <span id="post-updated-at"></span></div>
     <div class="post-contents" id="post-contents"></div>
 </div>
 <div class="comment-input">
@@ -136,10 +175,12 @@
     <!-- Comments will be dynamically inserted here -->
 </div>
 
-<div class="more-comments">
+<div class="more-comments" id="more-comments">
     <button id="load-more-comments">더 보기</button>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     let commentsData ='';
     let commentsToShow = 1;
@@ -148,7 +189,7 @@
         const accessToken = getCookie('accessToken');
 
         fetch(`http://localhost:8080/newboard/posts/${postNo}`, {
-            method: 'GET', // 예시로 POST 메서드 사용
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -179,6 +220,13 @@
         document.getElementById("post-created-at").innerText = new Date(postData.post.createdAt).toLocaleString();
         document.getElementById("post-contents").innerText = postData.post.contents;
 
+        // 수정일이 null인지 확인하고 처리
+        if (postData.post.updatedAt) {
+            document.getElementById("post-updated-at").innerText = new Date(postData.post.updatedAt).toLocaleString();
+        } else {
+            document.getElementById("post-updated-at").innerText = ''; // 수정일이 null이면 빈 문자열로 설정
+        }
+
         const fileList = document.getElementById("file-list");
         const filePreviewContainer = document.getElementById("file-preview");
         fileList.innerHTML = ''; // Clear current file list
@@ -197,6 +245,15 @@
                 const img = document.createElement("img");
                 const encodedImageName = encodeURIComponent(file.filePath); // Encode the file path
                 img.src = `http://localhost:8080/newboard/get-image?imageName=${encodedImageName}`;
+
+                // Add click event for downloading
+                img.addEventListener('click', () => {
+                    const link = document.createElement('a');
+                    link.href = img.src;
+                    link.download = file.fileName;
+                    link.click();
+                });
+
                 filePreview.appendChild(img);
             } else {
                 // 이미지 파일이 아닌 경우 파일 이름을 표시
@@ -207,8 +264,8 @@
 
             filePreviewContainer.appendChild(filePreview);
         });
-    }
 
+    }
 
     function getPostNoFromURL() {
         const url = new URL(window.location.href);
@@ -261,8 +318,14 @@
 
             commentList.appendChild(commentContainer);
         });
+        // 댓글이 없는 경우 더보기 버튼 숨김
+        const moreCommentsButton = document.getElementById("more-comments");
+        if (commentsData.length <= commentsToShow) {
+            moreCommentsButton.style.display = 'none';
+        } else {
+            moreCommentsButton.style.display = 'block';
+        }
     }
-
 
     document.getElementById("load-more-comments").addEventListener("click", () => {
         commentsToShow += 3;
@@ -271,7 +334,6 @@
 
     function insertComment(postNo, contents) {
         const accessToken = getCookie('accessToken');
-        // const userNo = getUserNo(); // Assume this function gets the user's number
 
         fetch(`http://localhost:8080/newboard/comments/${postNo}`, {
             method: 'POST',
@@ -294,7 +356,6 @@
                 } else {
                     alert("댓글이 등록되었습니다.");
                     window.location.reload(); // 페이지를 새로 고침하여 댓글을 다시 로드
-
                 }
             })
             .catch(error => console.error('Error posting comment:', error));
@@ -335,14 +396,12 @@
         document.getElementById("comment-contents").value = ''; // Clear the textarea
     });
 
-
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = cookies[i].trim();
-                // 쿠키 이름과 일치하는지 확인
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -352,6 +411,12 @@
         return cookieValue;
     }
 
+    document.getElementById("logout-button").addEventListener("click", () => {
+        // 쿠키에서 accessToken을 삭제
+        document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        // 로그인 페이지로 리디렉션
+        window.location.href = "http://localhost:8080/newboard/public/login";
+    });
 </script>
 
 </body>

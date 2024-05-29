@@ -100,12 +100,33 @@
                         localStorage.setItem('accessToken', accessToken);
                         // localStorage.setItem('refreshToken', refreshToken);
                         alert(successMessage);
+                        window.location.href = "http://localhost:8080/newboard/public/posts/list";
+
                     }
                 }
             };
 
             xhr.send(JSON.stringify(jsonObject)); // JSON 형식으로 데이터를 서버로 전송합니다.
         });
+
+        // 페이지 로드 시 '내 프로필 보기' 버튼을 숨기거나 표시
+        window.onload = function() {
+            var cookies = document.cookie.split(';');
+            var accessToken = null;
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith("accessToken=")) {
+                    accessToken = cookie.substring("accessToken=".length, cookie.length);
+                    break;
+                }
+            }
+
+            if (accessToken) {
+                document.getElementById("mypage-link").style.display = "block";
+            } else {
+                document.getElementById("mypage-link").style.display = "none";
+            }
+        };
 
         // document.getElementById("signupButton").addEventListener("click", function() {
         //     window.location.href = "signupForm.html";

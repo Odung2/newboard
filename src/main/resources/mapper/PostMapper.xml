@@ -22,7 +22,7 @@
     </select>
 
     <select id="getDetailPostRes" parameterType="int" resultType="DetailPostRes">
-        SELECT post.post_no, post.title, user.name, post.contents
+        SELECT post.post_no, post.title, user.name, post.contents, post.created_at, post.updated_at
         FROM post LEFT JOIN user ON post.user_no = user.user_no WHERE post_no = #{postNo}
     </select>
 

@@ -4,56 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시글 목록</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         /* 기본 스타일 */
-        body { font-family: sans-serif; }
-        #content { width: 80%; margin: 0 auto; } /* 내용 전체를 가운데 정렬 */
-        table { border-collapse: collapse; width: 80%; margin: 0 auto; } /* 게시글 목록의 가로 길이를 조정하고 가운데 정렬 */
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { text-align: left; background-color: #f0f0f0; }
-        /* 검색창 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #content {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #new-post-container {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        #new-post {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #new-post a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #new-post:hover {
+            background-color: #0056b3;
+        }
+
         #search-container {
-            text-align: center; /* 검색창과 검색 버튼을 가운데 정렬하기 위해 텍스트를 가운데 정렬 */
-            margin-bottom: 20px; /* 검색창과 게시글 목록 사이 간격 조정 */
+            text-align: center;
+            margin-bottom: 20px;
         }
+
         #search-box {
-            width: 300px; /* 검색창의 너비를 늘림 */
-            display: inline-block; /* 검색창을 인라인 블록 요소로 변경하여 가운데 정렬 */
-            vertical-align: middle; /* 세로 가운데 정렬 */
-            padding: 8px; /* 검색창의 패딩을 조정 */
-            box-sizing: border-box; /* 패딩과 경계 상자를 포함하여 너비를 계산 */
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
         }
+
         #search-btn {
-            width: 60px; /* 검색 버튼의 너비를 조정 */
-            padding: 8px 0; /* 검색 버튼의 패딩을 조정 */
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            margin-left: 5px; /* 검색 버튼과 검색창 사이의 간격을 조정 */
-            vertical-align: middle; /* 세로 가운데 정렬 */
+            margin-left: 5px;
         }
-        /* 페이지 버튼 스타일 */
-        .pagination { display: flex; justify-content: center; margin-top: 20px; }
-        .pagination li { list-style: none; margin: 0 5px; }
-        .pagination a { text-decoration: none; padding: 5px 10px; border: 1px solid #ddd; }
-        .pagination .active { background-color: #ccc; }
-    </style>
 
+        #search-btn:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: #007bff;
+        }
+
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /*body { font-family: sans-serif; }*/
+        /*#content { width: 80%; margin: 0 auto; } !* 내용 전체를 가운데 정렬 *!*/
+        /*table { border-collapse: collapse; width: 80%; margin: 0 auto; } !* 게시글 목록의 가로 길이를 조정하고 가운데 정렬 *!*/
+        /*th, td { border: 1px solid #ddd; padding: 8px; }*/
+        /*th { text-align: left; background-color: #f0f0f0; }*/
+        /*!* 검색창 스타일 *!*/
+        /*#search-container {*/
+        /*    text-align: center; !* 검색창과 검색 버튼을 가운데 정렬하기 위해 텍스트를 가운데 정렬 *!*/
+        /*    margin-bottom: 20px; !* 검색창과 게시글 목록 사이 간격 조정 *!*/
+        /*}*/
+        /*#search-box {*/
+        /*    width: 300px; !* 검색창의 너비를 늘림 *!*/
+        /*    display: inline-block; !* 검색창을 인라인 블록 요소로 변경하여 가운데 정렬 *!*/
+        /*    vertical-align: middle; !* 세로 가운데 정렬 *!*/
+        /*    padding: 8px; !* 검색창의 패딩을 조정 *!*/
+        /*    box-sizing: border-box; !* 패딩과 경계 상자를 포함하여 너비를 계산 *!*/
+        /*}*/
+        /*#search-btn {*/
+        /*    width: 60px; !* 검색 버튼의 너비를 조정 *!*/
+        /*    padding: 8px 0; !* 검색 버튼의 패딩을 조정 *!*/
+        /*    background-color: #4CAF50;*/
+        /*    color: white;*/
+        /*    border: none;*/
+        /*    cursor: pointer;*/
+        /*    margin-left: 5px; !* 검색 버튼과 검색창 사이의 간격을 조정 *!*/
+        /*    vertical-align: middle; !* 세로 가운데 정렬 *!*/
+        /*}*/
+        /*!* 페이지 버튼 스타일 *!*/
+        /*.pagination { display: flex; justify-content: center; margin-top: 20px; }*/
+        /*.pagination li { list-style: none; margin: 0 5px; }*/
+        /*.pagination a { text-decoration: none; padding: 5px 10px; border: 1px solid #ddd; }*/
+        /*.pagination .active { background-color: #ccc; }*/
+
+        .navbar-custom {
+            background-color: #343a40;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #d4d4d4;
+        }
+    </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="#">Newboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">게시판 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../show-my-page">프로필</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">설정</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <button class="btn btn-danger nav-link" id="logout-button">로그아웃</button>
+            </li>
+        </ul>
+    </div>
+</nav>
 <div id="content">
-
-
+    <br>
     <h1>게시글 목록</h1>
-
+    <div id="new-post-container">
+        <button id="new-post">
+            <a href="../posts">작성하기</a>
+        </button>
+    </div>
     <div id="search-container">
         <form id="search-form">
             <input type="text" id="search-box" placeholder="검색어를 입력하세요">
             <input type="submit" id="search-btn" value="검색">
         </form>
     </div>
-
     <table>
         <thead>
         <tr>
@@ -66,7 +220,6 @@
         <tbody>
         </tbody>
     </table>
-
     <ul class="pagination">
         <li><a href="#" id="first">&lt;&lt;</a></li>
         <li><a href="#" id="prev">&lt;</a></li>
@@ -76,31 +229,25 @@
         <li><a href="#" id="last">&gt;&gt;</a></li>
     </ul>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    // const postsPerPage = 3; // 페이지당 게시글 수
     let currentPage = 1; // 현재 페이지 번호
-    let searchKeyword ='';
+    let searchKeyword = '';
     const searchForm = document.getElementById('search-form');
-    // 폼 submit 이벤트 리스너 등록
     searchForm.addEventListener('submit', (event) => {
         event.preventDefault(); // 폼 제출 기본 동작 막기
-        // 검색어 가져오기
         searchKeyword = document.getElementById('search-box').value;
-        // 검색어가 비어있지 않은 경우에만 backend와 통신하여 검색 결과 가져오기
         if (searchKeyword.trim() !== '') {
             currentPage = 1; // 검색할 때 페이지를 초기화
             searchPosts();
         }
     });
-    // 페이지 이동 처리
     function goToPage(page) {
         currentPage = page;
-        if(searchKeyword){
-
+        if (searchKeyword) {
             searchPosts();
-        }else {
-            console.log('no searchKeyword');
+        } else {
             fetchPosts();
         }
         updateURL();
@@ -111,7 +258,6 @@
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = cookies[i].trim();
-                // 쿠키 이름과 일치하는지 확인
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -120,12 +266,10 @@
         }
         return cookieValue;
     }
-
     function searchPosts() {
-        const accessToken=getCookie('accessToken');
-        // 검색 키워드를 이용하여 backend와 통신하는 코드 작성
+        const accessToken = getCookie('accessToken');
         fetch(`http://localhost:8080/newboard/posts/list/${searchKeyword}`, {
-            method: 'POST', // 예시로 POST 메서드 사용
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -156,9 +300,8 @@
             })
             .catch(error => console.error('Error:', error));
     }
-    // 게시물 가져오기
     function fetchPosts() {
-        const accessToken=getCookie('accessToken');
+        const accessToken = getCookie('accessToken');
         fetch(`http://localhost:8080/newboard/posts/list`, {
             method: 'POST',
             headers: {
@@ -191,27 +334,24 @@
             })
             .catch(error => console.error('Error:', error));
     }
-
-    // 게시글 목록 표시
     function displayPosts(posts) {
         const tbody = document.querySelector('tbody');
         tbody.innerHTML = ''; // 이전 게시물 지우기
+
         posts.forEach(post => {
+            const formattedDate = post.createdAt.replace('T', ' ');
             const row = `<tr>
             <td>${post.postNo}</td>
             <td><a href="/newboard/public/posts/${post.postNo}">${post.title}</a></td>
             <td>${post.name}</td>
-            <td>${post.createdAt}</td>
+            <td>${formattedDate}</td>
         </tr>`;
             tbody.insertAdjacentHTML('beforeend', row);
         });
     }
-
-    // 페이지 버튼 생성
     function updatePagination() {
         const pagination = document.querySelector('.pagination');
         pagination.innerHTML = ''; // 기존 버튼 지우기
-        // 현재 페이지가 1페이지인 경우 이전 버튼은 비활성화
         if (currentPage === 1) {
             pagination.innerHTML += `<li><span>&lt;&lt;</span></li>`;
             pagination.innerHTML += `<li><span>&lt;</span></li>`;
@@ -219,7 +359,6 @@
             pagination.innerHTML += `<li><a href="#" id="first">&lt;&lt;</li>`;
             pagination.innerHTML += `<li><a href="#" id="prev">&lt;</a></li>`;
         }
-        // 페이지 버튼 표시 (최대 10 페이지)
         for (let i = Math.max(1, currentPage - 4); i <= Math.min(currentPage + 5, 10); i++) {
             if (i === currentPage) {
                 pagination.innerHTML += `<li><a href="#" class="page active">${i}</a></li>`;
@@ -227,7 +366,6 @@
                 pagination.innerHTML += `<li><a href="#" class="page">${i}</a></li>`;
             }
         }
-        // 현재 페이지가 10페이지인 경우 다음 버튼은 비활성화
         if (currentPage === 10) {
             pagination.innerHTML += `<li><span>&gt;</span></li>`;
             pagination.innerHTML += `<li><span>&gt;&gt;</span></li>`;
@@ -236,8 +374,6 @@
             pagination.innerHTML += `<li><a href="#" id="last">&gt;&gt;</a></li>`;
         }
     }
-
-    // 이벤트 리스너 등록
     document.querySelector('.pagination').addEventListener('click', (e) => {
         e.preventDefault();
         if (e.target.tagName === 'A' && !e.target.classList.contains('active')) {
@@ -249,7 +385,7 @@
                 goToPage(1);
             } else if (e.target.id === 'last') {
                 goToPage(10);
-            }else {
+            } else {
                 goToPage(parseInt(e.target.textContent));
             }
         }
@@ -259,8 +395,14 @@
         url.searchParams.set('keyword', searchKeyword);
         history.pushState(null, '', url);
     }
-
     goToPage(1);
+
+    document.getElementById("logout-button").addEventListener("click", () => {
+        // 쿠키에서 accessToken을 삭제
+        document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        // 로그인 페이지로 리디렉션
+        window.location.href = "http://localhost:8080/newboard/public/login";
+    });
 </script>
 </body>
 </html>
