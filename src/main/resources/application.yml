@@ -6,8 +6,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #    url: jdbc:log4jdbc:mysql://localhost:3306/weboard
     url: jdbc:mysql://localhost:3306/newboard
-    username: mingle
-    password: mingle
+    username: ${db-username}
+    password: ${db-password}
     hikari:
       pool-name: hikari-cp
       maximum-pool-size: 5
@@ -24,8 +24,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 465
-    username: kaimjy@wemade.com
-    password: qlalfqjsgh12#$
+    username: ${mail-username}
+    password: ${mail-password}
     properties:
       mail:
         smtp:
