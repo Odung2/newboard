@@ -7,15 +7,75 @@
         SELECT * FROM post WHERE post_no=#{postNo}
     </select>
 
-    <select id="searchPosts" parameterType="String" resultType="PublicPostRes">
-        SELECT post.post_no, post.title, post.created_at, user.name
+    <select id="getPublicPostIntroAllByOffset" parameterType="int" resultType="PublicPostRes">
+        SELECT post.post_no, post.title,post.created_at, user.name
         FROM post LEFT JOIN user ON post.user_no = user.user_no
-        WHERE post.title LIKE CONCAT('%', #{keyword}, '%') OR user.name LIKE CONCAT('%', #{keyword}, '%')
-            LIMIT #{pagesize}
-            <if test="offset!=null">
-                OFFSET #{offset}
-            </if>
+        LIMIT #{pagesize}
+        <if test="offset!=null">
+            OFFSET #{offset}
+        </if>
     </select>
+
+    <select id="searchPosts" resultType="PublicPostRes">
+        SELECT DISTINCT post.post_no, post.title, post.created_at, user.name
+        FROM post
+        LEFT JOIN user ON post.user_no = user.user_no
+        LEFT JOIN file ON post.post_no = file.post_no
+        <where>
+            <if test="keyword != null and keyword.trim() != ''">
+                (post.title LIKE CONCAT('%', #{keyword}, '%')
+                OR user.name LIKE CONCAT('%', #{keyword}, '%')
+                OR file.file_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countSearchPosts" parameterType="String" resultType="int">
+        SELECT COUNT(DISTINCT post.post_no) AS total_count
+        FROM post
+        LEFT JOIN user ON post.user_no = user.user_no
+        LEFT JOIN file ON post.post_no = file.post_no
+        <where>
+            <if test="keyword != null and keyword.trim() != ''">
+                (post.title LIKE CONCAT('%', #{keyword}, '%')
+                OR user.name LIKE CONCAT('%', #{keyword}, '%')
+                OR file.file_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <!--    <select id="searchPosts" resultType="PublicPostRes">-->
+<!--        SELECT DISTINCT post.post_no, post.title, post.created_at, user.name-->
+<!--        FROM post-->
+<!--        LEFT JOIN user ON post.user_no = user.user_no-->
+<!--        LEFT JOIN file ON post.post_no = file.post_no-->
+<!--        <where>-->
+<!--            <if test="keyword != null and keyword.trim() != ''">-->
+<!--                (post.title LIKE CONCAT('%', #{keyword}, '%')-->
+<!--                OR user.name LIKE CONCAT('%', #{keyword}, '%')-->
+<!--                OR file.file_name LIKE CONCAT('%', #{keyword}, '%'))-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        LIMIT #{pageSize}-->
+<!--        <if test="offset != null">-->
+<!--            OFFSET #{offset}-->
+<!--        </if>-->
+<!--    </select>-->
+
+<!--    <select id="countSearchPosts" parameterType="String" resultType="int">-->
+<!--        SELECT COUNT(DISTINCT post.post_no) AS total_count-->
+<!--        FROM post-->
+<!--        LEFT JOIN user ON post.user_no = user.user_no-->
+<!--        LEFT JOIN file ON post.post_no = file.post_no-->
+<!--        <where>-->
+<!--            <if test="keyword != null and keyword.trim() != ''">-->
+<!--                (post.title LIKE CONCAT('%', #{keyword}, '%')-->
+<!--                OR user.name LIKE CONCAT('%', #{keyword}, '%')-->
+<!--                OR file.file_name LIKE CONCAT('%', #{keyword}, '%'))-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
     <select id="getPostAll" resultType="PostDTO">
         SELECT * FROM post
@@ -43,14 +103,6 @@
                  </if>
     </select>
 
-    <select id="getPublicPostIntroAllByOffset" parameterType="int" resultType="PublicPostRes">
-        SELECT post.post_no, post.title,post.created_at, user.name
-        FROM post LEFT JOIN user ON post.user_no = user.user_no
-        LIMIT #{pagesize}
-        <if test="offset!=null">
-            OFFSET #{offset}
-        </if>
-    </select>
 
     <select id="getPostNoByUserNoAndTitle" resultType="int">
         SELECT post_no

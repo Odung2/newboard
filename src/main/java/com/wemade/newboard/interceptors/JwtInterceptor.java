@@ -1,6 +1,7 @@
 package com.wemade.newboard.interceptors;
 
 import com.wemade.newboard.service.AuthService;
+import com.wemade.newboard.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ public class JwtInterceptor implements HandlerInterceptor {
     private int refreshJWTExpiration;
 
     private final AuthService authService;
+    private final UserService userService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -37,9 +40,12 @@ public class JwtInterceptor implements HandlerInterceptor {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "No Authorization token provided");
 //            return false;
         }
+
         authService.validateAccessToken(accessJWT);
         int id = authService.getIdFromToken(accessJWT);
         request.setAttribute("reqId", id);
+        // user 존재 검증, 만약 없으면 에러 발생.
+        userService.getUser(id);
         //RequestContextHolder.
 
 

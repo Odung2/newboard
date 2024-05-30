@@ -1,5 +1,6 @@
 package com.wemade.newboard.controller;
 
+import com.wemade.newboard.dto.PostListDTO;
 import com.wemade.newboard.dto.PostViewBO;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
 import com.wemade.newboard.param.BasePagingParam;
@@ -15,18 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 // File io
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.wemade.newboard.dto.FrkConstants.uploadPath;
 
 //@RestController
 @Controller
@@ -89,20 +81,21 @@ public class PostController extends BaseController{
      */
     @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
     @PostMapping("/posts/list")
-    public ResponseEntity<ApiResponse<List<PublicPostRes>>> getPostAllByOffset(
+    public ResponseEntity<ApiResponse<PostListDTO>> getPostAllByOffset(
             @RequestBody @Valid BasePagingParam basePagingParam) {
-        return ok(postService.getPublicPostIntroAllByOffset(basePagingParam));
+        return ok(postService.searchPosts("", basePagingParam));
     }
 
     /**
      * 게시물 검색
+     *
      * @param keyword
      * @param basePagingParam
      * @return
      */
-    @Operation(summary = "모든 게시물을 오프셋 기준으로 n개씩 반환합니다.")
+    @Operation(summary = "검색한 게시물을 오프셋 기준으로 n개씩 반환합니다.")
     @PostMapping("/posts/list/{keyword}")
-    public ResponseEntity<ApiResponse<List<PublicPostRes>>> searchPosts(
+    public ResponseEntity<ApiResponse<PostListDTO>> searchPosts(
             @PathVariable String keyword,
             @RequestBody @Valid BasePagingParam basePagingParam) {
         return ok(postService.searchPosts(keyword, basePagingParam));

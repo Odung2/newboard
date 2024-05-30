@@ -2,6 +2,7 @@ package com.wemade.newboard.service;
 
 import com.wemade.newboard.dto.FileDTO;
 import com.wemade.newboard.dto.PostDTO;
+import com.wemade.newboard.dto.PostListDTO;
 import com.wemade.newboard.dto.PostViewBO;
 import com.wemade.newboard.exception.InvalidFileException;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
@@ -10,6 +11,8 @@ import com.wemade.newboard.param.BasePagingParam;
 import com.wemade.newboard.param.UpdatePostParam;
 import com.wemade.newboard.response.DetailPostRes;
 import com.wemade.newboard.response.PublicPostRes;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +35,14 @@ public class PostService {
     private final CommentService commentService;
 //    public List<PostDTO> getPostAll() { return postMapper.getPostAll(); }
 
-    /**
-     * 게시물 리스트
-     * @param basePagingParam
-     * @return
-     */
-    public List<PublicPostRes> getPublicPostIntroAllByOffset(BasePagingParam basePagingParam) {
-        return postMapper.getPublicPostIntroAllByOffset((int) basePagingParam.getOffset(), (int) basePagingParam.getPageSize());
-    }
+//    /**
+//     * 게시물 리스트
+//     * @param basePagingParam
+//     * @return
+//     */
+//    public List<PublicPostRes> getPublicPostIntroAllByOffset(BasePagingParam basePagingParam) {
+//        return postMapper.getPublicPostIntroAllByOffset((int) basePagingParam.getOffset(), (int) basePagingParam.getPageSize());
+//    }
 
     /**
      * 게시물 상세보기
@@ -66,16 +69,23 @@ public class PostService {
 
     /**
      * 게시물 리스트 검색
+     *
      * @param param
      * @param basePagingParam
      * @return
      */
-    public List<PublicPostRes> searchPosts(String param, BasePagingParam basePagingParam) {
-        List<PublicPostRes> searchPosts = postMapper.searchPosts(param, basePagingParam.getOffset(), basePagingParam.getPageSize());
-        if (searchPosts == null) {
+    public PostListDTO searchPosts(@Nullable String param, BasePagingParam basePagingParam) {
+        if (param == null || param.isEmpty()) {
+            param = "";
+        }
+        PostListDTO postList = new PostListDTO();
+        int totalCount = postMapper.countSearchPosts(param);
+        int totalPages = (int) Math.ceil((double) totalCount / basePagingParam.getPageSize());
+        postList.setTotalPages(totalPages);        postList.setSearchPosts(postMapper.searchPosts(param, basePagingParam.getOffset(), basePagingParam.getPageSize()));
+        if (postList.getSearchPosts() == null) {
             throw new NotFoundException("게시물을 찾을 수 없습니다.");
         }
-        return searchPosts;
+        return postList;
     }
 
     /**

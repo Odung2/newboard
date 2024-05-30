@@ -18,8 +18,9 @@ public interface PostMapper extends BaseMapper {
     List<PostDTO> getPostAllByOffset(@Param("offset") int currpage, @Param("pagesize") int pagesize);
     List<DetailPostRes> getUserPosts(int userNo);
     List<DetailPostRes> getUserTempPosts(int userNo);
-    List<PublicPostRes> searchPosts(@Param("keyword") String keyword, @Param("offset") int currpage, @Param("pagesize") int pagesize );
-
+    List<PublicPostRes> searchPosts(@Param("keyword") String keyword, @Param("offset") int offset, @Param("pageSize") int pageSize );
+//    List<PublicPostRes> getPublicPostIntroAllByOffset(@Param("offset") int currPage, @Param("pagesize") int pageSize);
+    int countSearchPosts(String keyword);
     List<FileDTO> getFiles(int postNo);
     int deleteFile(int fileNo);
     int uploadFile(FileDTO file);
@@ -29,5 +30,4 @@ public interface PostMapper extends BaseMapper {
     @Override
     int delete(int postId);
     DetailPostRes getDetailPostRes(int postId);
-    List<PublicPostRes> getPublicPostIntroAllByOffset(@Param("offset") int currPage, @Param("pagesize") int pageSize);
 }
