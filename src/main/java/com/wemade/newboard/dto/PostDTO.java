@@ -2,12 +2,14 @@ package com.wemade.newboard.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Schema(description = "게시물 정보를 담는 DTO")
-public class PostDTO extends BaseDTO{
+public class PostDTO extends BaseDTO {
 
     @Schema(description = "게시물 번호")
     private int postNo;

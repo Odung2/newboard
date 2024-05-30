@@ -28,7 +28,9 @@
                 OR file.file_name LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
-        LIMIT #{pageSize} OFFSET #{offset}
+        ORDER BY post.created_at DESC
+        LIMIT #{pageSize}
+        OFFSET #{offset}
     </select>
 
     <select id="countSearchPosts" parameterType="String" resultType="int">

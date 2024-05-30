@@ -5,7 +5,6 @@ import com.wemade.newboard.dto.PostViewBO;
 import com.wemade.newboard.exception.UnauthorizedAccessException;
 import com.wemade.newboard.param.BasePagingParam;
 import com.wemade.newboard.param.UpdatePostParam;
-import com.wemade.newboard.response.PublicPostRes;
 import com.wemade.newboard.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -71,6 +70,17 @@ public class PostController extends BaseController{
     @GetMapping("public/posts/{postNo}")
     public String showPostDetail(@PathVariable int postNo) {
         return "postDetail";
+    }
+
+    /**
+     * 게시물 상세 보기
+     * @param postNo
+     * @return
+     */
+    @Operation(summary = "특정 게시물을 ID로 조회합니다.")
+    @GetMapping("public/posts/update/{postNo}")
+    public String showPostUpdateForm(@PathVariable int postNo) {
+        return "updatePost";
     }
 
 
@@ -161,20 +171,5 @@ public class PostController extends BaseController{
         return ok(postService.deletePost(postNo, userNo));
     }
 
-//    public ResponseEntity<Resource> showImage(@RequestParam String imageName) throws UnsupportedEncodingException {
-//
-//        String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8.name());
-//
-//        // 이미지 파일을 Resource 객체로 로드
-//        Resource resource = new FileSystemResource(uploadPath+decodedImageName);
-//
-//        if (!resource.exists()) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        // 이미지 파일을 응답으로 반환
-//        return ResponseEntity.ok()
-//             .contentType(MediaType.IMAGE_PNG) // 이미지 타입에 따라 변경
-//             .body(resource);
-//    }
 
 }

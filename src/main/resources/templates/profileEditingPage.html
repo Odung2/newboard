@@ -270,6 +270,11 @@
                         } else if (data.data) {
                             errorMessage += "\n" + data.data;
                         }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
+                        }
                         alert(errorMessage);
                     } else {
                         let successMessage = data.resultMessage +"\n"+ data.data;
@@ -310,6 +315,11 @@
                             errorMessage += "\n" + data.data.message;
                         }else if(data.data){
                             errorMessage += "\n" + data.data;
+                        }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
                         }
                         alert(errorMessage);
                     }else{
@@ -355,6 +365,11 @@
                         }else if(data.data){
                             errorMessage += "\n" + data.data;
                         }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
+                        }
                         alert(errorMessage);
                     }else{
                         successMessage = data.resultMessage +"\n"+ data.data;
@@ -392,6 +407,11 @@
                             errorMessage += "\n" + data.data.message;
                         } else if (data.data) {
                             errorMessage += "\n" + data.data;
+                        }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
                         }
                         alert(errorMessage);
                     } else {
@@ -456,6 +476,11 @@
                         } else if (data.data) {
                             errorMessage += "\n" + data.data;
                         }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
+                        }
                         alert(errorMessage);
                     } else {
                         const postDetails = document.getElementById('postDetails');
@@ -518,6 +543,11 @@
                             errorMessage += "\n" + data.data.message;
                         } else if (data.data) {
                             errorMessage += "\n" + data.data;
+                        }
+                        if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                            // 쿠키에서 accessToken을 삭제
+                            document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                            window.location.href="http://localhost:8080/newboard/public/login"
                         }
                         alert(errorMessage);
                     } else {

@@ -7,11 +7,12 @@
     <select id="getCommentByPostId" parameterType="int" resultType="CommentDTO">
         SELECT * FROM comment WHERE post_no=#{postNo}
     </select>
-    <!-- -->
+
     <select id="getComments" parameterType="int" resultType="CommentRes">
         SELECT comment.comment_no, comment.post_no, comment.contents, comment.created_at, comment.updated_at, user.name
         FROM comment LEFT JOIN user ON comment.user_no = user.user_no
         WHERE post_no = #{postNo}
+        ORDER BY comment.created_at DESC
     </select>
 
     <select id="getUserComments" parameterType="int" resultType="CommentRes">

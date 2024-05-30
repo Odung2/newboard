@@ -23,7 +23,7 @@ public class UpdateUserParam {
     private String name;
 
     @Nullable
-    @Size(min = 1, max=20, message = "이메일은 1자 이상 20자 이하만 가능합니다.")
+    @Size(min = 1, max=100, message = "이메일은 1자 이상 20자 이하만 가능합니다.")
     @Schema(description = "사용자 이메일")
     private String email;
 

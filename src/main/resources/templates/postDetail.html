@@ -204,6 +204,11 @@
                     } else if (data.data) {
                         errorMessage += "\n" + data.data;
                     }
+                    if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                        // 쿠키에서 accessToken을 삭제
+                        document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                        window.location.href="http://localhost:8080/newboard/public/login"
+                    }
                     alert(errorMessage);
                 } else {
                     displayDetailPost(data.data);
@@ -352,6 +357,9 @@
                     } else if (data.data) {
                         errorMessage += "\n" + data.data;
                     }
+                    if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                        window.location.href="http://localhost:8080/newboard/public/login"
+                    }
                     alert(errorMessage);
                 } else {
                     alert("댓글이 등록되었습니다.");
@@ -379,6 +387,11 @@
                         errorMessage += "\n" + data.data.message;
                     } else if (data.data) {
                         errorMessage += "\n" + data.data;
+                    }
+                    if(errorMessage==="access token이 만료되었습니다. 새로운 액세스 토큰을 발급받으세요."){
+                        // 쿠키에서 accessToken을 삭제
+                        document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+                        window.location.href="http://localhost:8080/newboard/public/login"
                     }
                     alert(errorMessage);
                 } else {
