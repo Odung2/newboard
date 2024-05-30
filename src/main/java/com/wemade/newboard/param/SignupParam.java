@@ -1,6 +1,7 @@
 package com.wemade.newboard.param;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -10,30 +11,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignupParam {
 
-    @NotBlank(message = "아이디를 작성해주세요.(2자 이상, 20자 이하)")
-    @Size(min = 2, max=20, message = "아이디는 2자 이상 20자 이하만 가능합니다.")
+    @Pattern(regexp = "^[a-z0-9]{3,15}$", message = "아이디는 영어, 숫자 조합 3~15자만 입력 가능합니다.")
     @Schema(description = "사용자 아이디")
     private String userId;
 
-    @NotBlank(message = "이름을 작성해주세요.(1자 이상, 20자 이하, 한글만 입력)")
-    @Size(min = 1, max=20, message = "이름은 1자 이상 20자 이하만 가능합니다.")
-    @Pattern(regexp = "^[가-힣]{1,20}$", message = "한글만 입력해주세요.")
+    @Pattern(regexp = "^[가-힣]{2,20}$", message = "한글, 2~20자만 입력 가능합니다.")
     @Schema(description = "사용자 이름")
     private String name;
 
-    @NotBlank(message = "이메일을 작성해주세요.")
-    @Size(min = 1, max=100, message = "이메일은 1자 이상 100자 이하만 가능합니다.")
+    @Email
+    @Size(max=100, message = "이메일은 100자 이하만 가능합니다.")
     @Schema(description = "사용자 이메일")
     private String email;
 
-    @NotBlank(message = "전화번호를 작성해주세요.(5자 이상, 20자 이하, 숫자만 입력)")
-    @Size(min = 5, max=20, message = "전화번호는 5자 이상 20자 이하만 가능합니다.")
-    @Pattern(regexp = "^[0-9]{5,20}$", message = "숫자만 입력해주세요.")
+    @Pattern(regexp = "^[0-9]{9,11}$", message = "숫자만 입력해주세요.")
     @Schema(description = "사용자 전화번호")
     private String phone;
 
-    @NotBlank(message = "비밀번호를 작성해주세요.(8자 이상, 16자 이하, 영문 대소문자, 특수문자, 숫자 포함")
-    @Size(min = 8, max=16, message = "8자 이상 16자 이하의 비밀번호만 가능합니다.")
+    @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}", message = "비밀번호 규격에 맞지 않습니다.")
     @Schema(description = "사용자 비밀번호")
     private String password;
 

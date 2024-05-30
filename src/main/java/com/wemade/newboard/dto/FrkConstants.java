@@ -5,7 +5,7 @@ public class FrkConstants {
     public static final int CD_NOK = 300;
     public static final String FAIL = "Fail";
     public static final String SUCCESS = "SUCCESS";
-    public static final String uploadPath = "/Users/wm-id002518/newboardfiles/";
+    public static final String uploadPath = "/Users/wm-bd000048/temp/";
 
     /**
      * 비밀번호 조건은 다음과 같음

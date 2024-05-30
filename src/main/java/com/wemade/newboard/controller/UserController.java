@@ -16,16 +16,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.ui.Model;
-
 
 import java.util.List;
 
-@RequestMapping("/newboard")
+@Slf4j
+@RequestMapping("/user")
 //@RestController
 @Controller
 @RequiredArgsConstructor
@@ -36,40 +36,13 @@ public class UserController extends BaseController{
     private final CommentService commentService;
 
     /**
-     * html 로그인
-     * @return
-     */
-    @GetMapping("/public/login")
-    public String showLoginPage() {
-        return "login";
-    }
-
-    /**
-     * html 회원가입
-     * @return
-     */
-    @GetMapping("/public/sign-up")
-    public String showSignupPage() {
-        return "signup";
-    }
-
-    /**
-     * html 개인정보 수정
-     * @return
-     */
-    @GetMapping("/public/show-my-page")
-    public String showMyPage() {
-        return "profileEditingPage";
-    }
-
-    /**
      * 회원가입
      * @param signupParam 등록할 사용자의 데이터를 담은 DTO(userId, nickname, password)
      * @return user 등록된 유저 정보
      */
     @Operation(summary = "회원가입(새로운 사용자 등록)", description = "새로운 사용자를 등록합니다.")
-    @PostMapping("/public/sign-up")
-    public ResponseEntity<ApiResponse<String>> SignUp(
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponse<String>> signup(
             @RequestBody @Valid SignupParam signupParam) throws Exception {
         return ok(userService.insertUser(signupParam));
     }
@@ -105,7 +78,12 @@ public class UserController extends BaseController{
     @PostMapping("/find-password")
     public ResponseEntity<ApiResponse<String>> findPassword(
             @RequestBody @Valid FindPasswordParam findPasswordParam) throws Exception {
-        return ok(userService.findPassword(findPasswordParam));
+        try {
+            return ok(userService.findPassword(findPasswordParam));
+        } catch (Exception e) {
+            log.error("", e);
+            throw e;
+        }
     }
 
     /**

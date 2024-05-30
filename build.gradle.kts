@@ -32,6 +32,10 @@ dependencies {
 	testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+	implementation("org.springframework.boot:spring-boot-devtools:3.3.0")
+
+
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
 	// thymeleaf 설정

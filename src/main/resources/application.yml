@@ -5,7 +5,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #    url: jdbc:log4jdbc:mysql://localhost:3306/weboard
-    url: jdbc:mysql://localhost:3306/newboard
+    url: jdbc:mysql://localhost:3306/new_board
     username: ${db-username}
     password: ${db-password}
     hikari:

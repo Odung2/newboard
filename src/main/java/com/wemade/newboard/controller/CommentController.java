@@ -4,9 +4,11 @@ import com.wemade.newboard.param.InsertCommentParam;
 import com.wemade.newboard.param.UpdateCommentParam;
 import com.wemade.newboard.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/newboard/comments")
 @RequiredArgsConstructor
 public class CommentController extends BaseController{
+
+    @Value("${spring.datasource.password}")
+    String pass;
+
+    @PostConstruct
+    public void test() {
+        System.err.println("==> pass : " + pass);
+        System.err.println("==> pass : " + pass);
+    }
 
     private final CommentService commentService;
 

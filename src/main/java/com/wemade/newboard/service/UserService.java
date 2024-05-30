@@ -81,7 +81,7 @@ public class UserService {
 
         // 임시 비밀번호 발급
         String tempPassword = generateTemporaryPassword();
-        user.setPassword(plainToSha256(tempPassword));
+        user.setPassword(plainToSha256(tempPassword, user.));
 
         // 비밀번호 유효성 검사를 하지 않고 바로 수정함.
         userMapper.update(user);
@@ -105,12 +105,8 @@ public class UserService {
     @Transactional
     public String insertUser(SignupParam signupParam) throws NoSuchAlgorithmException {
 
-        // 중복 아이디, 이메일 체크
-        validateDuplicateUser(signupParam.getUserId());
-        validateDuplicateEmail(signupParam.getEmail());
-        // 비밀번호 유효성 체크
-        validatePassword(signupParam.getPassword());
-        signupParam.setPassword(plainToSha256(signupParam.getPassword()));
+        // 비밀번호 암호화
+        signupParam.setPassword(plainToSha256(signupParam.getPassword() + "_sing"));
 
         userMapper.insert(signupParam);
         return signupParam.getName();
@@ -187,7 +183,8 @@ public class UserService {
      * @param plaintext 평문 비밀번호
      * @return 해시된 비밀번호
      */
-    public String plainToSha256(String plaintext) throws NoSuchAlgorithmException {
+    public String plainToSha256(String plaintext, String saltStr) throws NoSuchAlgorithmException {
+        String text = plaintext + "_" + saltStr;
         MessageDigest mdSHA256 = null;
         try {
             mdSHA256 = MessageDigest.getInstance("SHA-256");

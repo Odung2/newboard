@@ -62,7 +62,7 @@ public class AuthService {
      * @throws NoSuchAlgorithmException // 비밀번호 암호화 알고리즘 존재 확인
      */
     public void validatePassword(UserDTO user, String loginPassword) throws CredentialException, NoSuchAlgorithmException {
-        String hashedPassword = userService.plainToSha256(loginPassword);
+        String hashedPassword = userService.plainToSha256(loginPassword, user.getUserId());
         // 저장된 비밀번호와 입력된 비밀번호가 일치하지 않으면
         if (!user.getPassword().equals(hashedPassword)) {
             throw new CredentialException("비밀번호가 일치하지 않습니다.");
